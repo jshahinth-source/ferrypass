@@ -1,0 +1,1863 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MIFCO Kooddoo Ferry Ticketing & Verification</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['-apple-system', 'BlinkMacSystemFont', '"SF Pro Display"', '"SF Pro Text"', 'Helvetica Neue', 'Helvetica', 'Arial', 'sans-serif'],
+                        mono: ['"SF Mono"', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', 'monospace']
+                    },
+                    colors: {
+                        deepblue: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            500: '#0ea5e9',
+                            600: '#0284c7',
+                            700: '#0369a1',
+                            800: '#075985',
+                            900: '#0b192c',
+                            950: '#040812',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- SheetJS for Excel Exports -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <!-- html2canvas for PNG badge downloads -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <!-- QRCode Generator Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <!-- HTML5 QR Code Scanner Library for Camera and Image Upload -->
+    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+    <!-- GSAP for Noomo-style smooth scroll storytelling & 3D cinematic motion -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <style>
+        /* Hide scrollbar for Chrome, Safari and Opera */
+        ::-webkit-scrollbar {
+            display: none !important;
+            width: 0 !important;
+            height: 0 !important;
+        }
+
+        /* Hide scrollbar for IE, Edge and Firefox */
+        html, body {
+            -ms-overflow-style: none !important;  /* IE and Edge */
+            scrollbar-width: none !important;  /* Firefox */
+            overflow-y: scroll; /* Allows smooth scrolling without showing the scrollbar */
+        }
+
+        @media print {
+            body * { visibility: hidden; }
+            #printable-pass, #printable-pass *, #modal-printable-pass, #modal-printable-pass * { visibility: visible; }
+            #printable-pass, #modal-printable-pass { position: absolute; left: 0; top: 0; width: 100%; }
+            .no-print { display: none !important; }
+        }
+        .tab-btn.active {
+            border-bottom: 2px solid #0ea5e9;
+            color: #0ea5e9;
+            font-weight: 600;
+        }
+        /* Apple & Futuristic Capsule 3D Card Motion Utilities */
+        .perspective-container {
+            perspective: 1400px;
+        }
+        .card-apple-3d {
+            transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+            transform-style: preserve-3d;
+        }
+        .card-apple-3d:hover {
+            transform: translateY(-12px) rotateX(4deg) rotateY(-4deg) scale(1.03);
+            box-shadow: 0 40px 70px -15px rgba(7, 89, 133, 0.5), 0 0 40px -5px rgba(14, 165, 233, 0.4);
+        }
+        @keyframes floatFerry {
+            0%, 100% { transform: translateY(0px) rotate(0deg) scale(1); }
+            50% { transform: translateY(-6px) rotate(-2deg) scale(1.06); }
+        }
+        .animate-ferry-float {
+            animation: floatFerry 3s ease-in-out infinite;
+        }
+        @keyframes pulseGlow {
+            0%, 100% { opacity: 0.3; transform: scale(1); }
+            50% { opacity: 0.7; transform: scale(1.08); }
+        }
+        .animate-pulse-glow {
+            animation: pulseGlow 5s ease-in-out infinite;
+        }
+        @keyframes capsuleWave {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        .capsule-shimmer {
+            background-size: 200% 200%;
+            animation: capsuleWave 8s ease infinite;
+        }
+        @keyframes trackingDots {
+            0% { opacity: 0.2; }
+            20% { opacity: 1; }
+            100% { opacity: 0.2; }
+        }
+        .tracking-dot-1 { animation: trackingDots 1.4s infinite; animation-delay: 0s; }
+        .tracking-dot-2 { animation: trackingDots 1.4s infinite; animation-delay: 0.2s; }
+        .tracking-dot-3 { animation: trackingDots 1.4s infinite; animation-delay: 0.4s; }
+
+        /* Horizontal News Ticker Animation */
+        @keyframes marqueeScroll {
+            0% { transform: translateX(100%); }
+            100% { transform: translateX(-100%); }
+        }
+        .animate-marquee {
+            display: inline-block;
+            white-space: nowrap;
+            animation: marqueeScroll 25s linear infinite;
+        }
+        .animate-marquee:hover {
+            animation-play-state: paused;
+        }
+
+        /* Extraordinary 3D Ocean Waves & Water Surface Effects */
+        @keyframes oceanCurrent {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        @keyframes waveLayerMove1 {
+            0% { transform: translateX(0) translateZ(0) scaleY(1); }
+            50% { transform: translateX(-25%) translateZ(20px) scaleY(1.15); }
+            100% { transform: translateX(-50%) translateZ(0) scaleY(1); }
+        }
+        @keyframes waveLayerMove2 {
+            0% { transform: translateX(0) translateZ(0) scaleY(1); }
+            50% { transform: translateX(25%) translateZ(30px) scaleY(0.9); }
+            100% { transform: translateX(50%) translateZ(0) scaleY(1); }
+        }
+        @keyframes boatFloating3D {
+            0% { transform: translateY(0px) rotateX(8deg) rotateY(-8deg) rotateZ(-1deg); }
+            50% { transform: translateY(-14px) rotateX(12deg) rotateY(8deg) rotateZ(2deg); }
+            100% { transform: translateY(0px) rotateX(8deg) rotateY(-8deg) rotateZ(-1deg); }
+        }
+        @keyframes causticsGlow {
+            0%, 100% { opacity: 0.25; transform: scale(1) rotate(0deg); }
+            50% { opacity: 0.55; transform: scale(1.12) rotate(180deg); }
+        }
+
+        /* Light & Dark Theme Ocean Backgrounds */
+        .ocean-bg-dark {
+            background: linear-gradient(135deg, #020617 0%, #0b192c 40%, #075985 100%);
+            background-size: 300% 300%;
+            animation: oceanCurrent 15s ease infinite;
+        }
+        .ocean-bg-light {
+            background: linear-gradient(135deg, #f0f9ff 0%, #bae6fd 40%, #38bdf8 100%);
+            background-size: 300% 300%;
+            animation: oceanCurrent 15s ease infinite;
+        }
+        .water-wave-1 {
+            background: linear-gradient(90deg, rgba(56, 189, 248, 0.15), rgba(14, 165, 233, 0.35), rgba(2, 132, 199, 0.15));
+            animation: waveLayerMove1 8s ease-in-out infinite;
+        }
+        .water-wave-2 {
+            background: linear-gradient(90deg, rgba(2, 132, 199, 0.2), rgba(3, 105, 161, 0.4), rgba(7, 89, 133, 0.2));
+            animation: waveLayerMove2 11s ease-in-out infinite;
+        }
+        .boat-3d-motion {
+            transform-style: preserve-3d;
+            animation: boatFloating3D 4s ease-in-out infinite;
+        }
+        .caustics-light {
+            animation: causticsGlow 6s ease-in-out infinite;
+        }
+
+        /* Noomo-inspired 3D Magnetic Parallax & Storytelling Transition Utilities */
+        .noomo-transition-fade {
+            transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .noomo-glass-panel {
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%);
+        }
+        .noomo-glow-border {
+            position: relative;
+        }
+        .noomo-glow-border::after {
+            content: '';
+            position: absolute;
+            inset: -1px;
+            background: linear-gradient(90deg, #0ea5e9, #38bdf8, #6366f1, #0ea5e9);
+            background-size: 300% 300%;
+            animation: capsuleWave 6s ease infinite;
+            border-radius: inherit;
+            z-index: -1;
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+        .noomo-glow-border:hover::after {
+            opacity: 1;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 dark:bg-deepblue-950 text-slate-900 dark:text-slate-100 min-h-screen flex flex-col font-sans transition-colors duration-500 overflow-x-hidden">
+
+    <!-- Login Modal with Realistic 3D Ocean Water Waves & Loading Screen Effect -->
+    <div id="login-modal" class="fixed inset-0 ocean-bg-dark dark:ocean-bg-dark z-50 flex items-center justify-center p-4 backdrop-blur-3xl transition-all duration-700">
+        <!-- Realistic Water Waves & Caustics Layers -->
+        <div class="absolute inset-0 overflow-hidden pointer-events-none">
+            <!-- Underwater Caustics Light Beams -->
+            <div class="absolute -top-40 -left-40 w-[500px] h-[500px] bg-sky-400/20 rounded-full blur-[100px] caustics-light"></div>
+            <div class="absolute -bottom-40 -right-40 w-[500px] h-[500px] bg-blue-500/20 rounded-full blur-[100px] caustics-light" style="animation-delay: -3s;"></div>
+            
+            <!-- Realistic Overlapping Ocean Wave Tides -->
+            <div class="absolute bottom-0 left-0 right-0 h-96 opacity-40 water-wave-1 rounded-t-[100%] blur-xl transform translate-y-20"></div>
+            <div class="absolute bottom-0 left-0 right-0 h-80 opacity-30 water-wave-2 rounded-t-[100%] blur-2xl transform translate-y-10"></div>
+        </div>
+
+        <!-- Apple-inspired Frosted Glass Card Container -->
+        <div class="bg-white/80 dark:bg-deepblue-900/85 border border-slate-200/60 dark:border-sky-500/30 rounded-[2.5rem] shadow-[0_25px_70px_rgba(2,132,199,0.35)] max-w-md w-full p-8 md:p-10 relative backdrop-blur-2xl transform transition-all overflow-hidden perspective-container">
+            <div class="text-center mb-6 relative z-10">
+                <!-- 3D Boat & Ocean Wave Loading Visualizer Icon -->
+                <div class="boat-3d-motion inline-flex p-4 rounded-3xl bg-gradient-to-tr from-sky-500 via-blue-600 to-indigo-600 text-white mb-4 shadow-[0_15px_35px_rgba(14,165,233,0.45)] border border-sky-300/40 relative">
+                    <div class="absolute inset-0 rounded-3xl border border-white/40 animate-pulse pointer-events-none"></div>
+                    <svg class="w-9 h-9 drop-shadow-md" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
+                </div>
+                
+                <h2 class="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">MIFCO KFC FERRY PASS</h2>
+                <p class="text-xs text-sky-600 dark:text-sky-300 font-medium tracking-wider mt-1 uppercase">STAFF Transport &  Navigation Suite</p>
+            </div>
+
+            <form id="login-form" class="space-y-4 relative z-10">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 dark:text-sky-200 mb-1.5 uppercase tracking-wider">Username</label>
+                    <input type="text" id="login-username" required placeholder="e.g. admin, hr_user..." class="w-full px-4 py-3 bg-slate-50/80 dark:bg-deepblue-950/80 border border-slate-200 dark:border-sky-500/30 rounded-2xl focus:ring-2 focus:ring-sky-500 focus:outline-none text-sm text-slate-900 dark:text-white placeholder-slate-400 transition shadow-inner">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 dark:text-sky-200 mb-1.5 uppercase tracking-wider">Password</label>
+                    <input type="password" id="login-password" required placeholder="••••••••" class="w-full px-4 py-3 bg-slate-50/80 dark:bg-deepblue-950/80 border border-slate-200 dark:border-sky-500/30 rounded-2xl focus:ring-2 focus:ring-sky-500 focus:outline-none text-sm text-slate-900 dark:text-white placeholder-slate-400 transition shadow-inner">
+                </div>
+                <button type="submit" class="w-full bg-gradient-to-r from-sky-500 via-blue-600 to-indigo-600 hover:from-sky-400 hover:to-indigo-500 text-white font-semibold py-3.5 rounded-2xl transition-all text-sm shadow-[0_10px_25px_rgba(14,165,233,0.35)] transform hover:-translate-y-0.5 border border-sky-300/30">
+                    Login
+                </button>
+            </form>
+
+            <div class="mt-6 pt-4 border-t border-slate-200 dark:border-blue-900/60 text-[11px] text-slate-600 dark:text-slate-300 bg-slate-100/80 dark:bg-deepblue-950/70 p-4 rounded-2xl space-y-1 relative z-10 border border-slate-200/80 dark:border-sky-500/20 shadow-inner">
+                <p class="font-bold text-sky-600 dark:text-sky-300 mb-1 flex items-center gap-1.5">
+                    <span class="w-2 h-2 rounded-full bg-sky-500 animate-pulse"></span>
+                    Demo Credentials:
+                </p>
+                <div class="grid grid-cols-2 gap-1 pt-1">
+                    <p>Admin: <code class="bg-white dark:bg-deepblue-900 px-1.5 py-0.5 rounded text-sky-600 dark:text-sky-300 font-mono">admin@123</code></p>
+                    <p>HR: <code class="bg-white dark:bg-deepblue-900 px-1.5 py-0.5 rounded text-sky-600 dark:text-sky-300 font-mono">hr@123</code></p>
+                    <p>Supervisor: <code class="bg-white dark:bg-deepblue-900 px-1.5 py-0.5 rounded text-sky-600 dark:text-sky-300 font-mono">sup@123</code></p>
+                    <p>HOD: <code class="bg-white dark:bg-deepblue-900 px-1.5 py-0.5 rounded text-sky-600 dark:text-sky-300 font-mono">hod@123</code></p>
+                    <p class="col-span-2">Password (all): <code class="bg-white dark:bg-deepblue-900 px-1.5 py-0.5 rounded text-sky-600 dark:text-sky-300 font-mono">Welcome@123</code></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <header class="bg-white/90 dark:bg-deepblue-900/90 border-b border-slate-200 dark:border-blue-900/40 text-slate-800 dark:text-white sticky top-0 z-40 backdrop-blur-xl transition-colors duration-300">
+        <div class="max-w-7xl mx-auto px-4 py-3.5 flex flex-col md:flex-row justify-between items-center gap-3">
+            <div class="flex items-center gap-3">
+                <div class="p-2 rounded-xl bg-sky-600 text-white shadow-md shadow-sky-600/30">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
+                </div>
+                <div>
+                    <h1 class="text-base font-bold tracking-tight text-slate-900 dark:text-white">MIFCO KOODDOO FERRY PASS SYSTEM</h1>
+                    <p class="text-[11px] text-slate-500 dark:text-slate-400">Marine Transport Unit &bull; Secure Cloud Ops</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-3">
+                <div id="user-session-box" class="hidden items-center gap-2.5 bg-slate-100 dark:bg-deepblue-950 px-3.5 py-1.5 rounded-xl border border-slate-200 dark:border-blue-900/60 text-xs shadow-inner">
+                    <span class="text-slate-600 dark:text-slate-300"><strong id="current-user-display" class="text-slate-900 dark:text-white">---</strong> (<span id="current-role-display" class="text-sky-600 dark:text-sky-400 font-medium">---</span>)</span>
+                    <button onclick="logoutUser()" class="bg-red-500/10 hover:bg-red-500/20 text-red-600 dark:text-red-400 border border-red-500/20 px-2.5 py-1 rounded-lg text-[11px] transition">Logout</button>
+                </div>
+                <!-- Theme Toggle Button -->
+                <button onclick="toggleTheme()" class="bg-slate-100 dark:bg-deepblue-950 hover:bg-slate-200 dark:hover:bg-deepblue-800 text-slate-700 dark:text-sky-300 px-3.5 py-2 rounded-xl border border-slate-200 dark:border-blue-900/60 text-xs transition flex items-center gap-2 shadow-2xs">
+                    <span id="theme-icon">🌙</span>
+                    <span id="theme-text" class="hidden sm:inline font-medium">Dark</span>
+                </button>
+                <div id="live-clock" class="bg-slate-100 dark:bg-deepblue-950 px-4 py-1.5 rounded-xl border border-slate-200 dark:border-blue-900/60 text-xs font-mono tracking-wide text-slate-600 dark:text-slate-300 shadow-inner">
+                    Loading Time...
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Horizontal Live Announcement Ticker Bar -->
+    <div class="bg-sky-600 text-white overflow-hidden py-2 px-4 text-xs font-medium border-b border-sky-500/30 flex items-center shadow-md relative z-30">
+        <div class="bg-deepblue-950 text-sky-300 font-bold px-2.5 py-1 rounded-lg mr-3 uppercase tracking-wider text-[10px] shrink-0 border border-sky-800/60 shadow-inner flex items-center gap-1.5">
+            <span class="w-2 h-2 rounded-full bg-sky-400 animate-pulse"></span>
+            Notice Board
+        </div>
+        <div class="overflow-hidden whitespace-nowrap relative w-full">
+            <div id="live-announcement-ticker" class="animate-marquee font-medium text-sky-100">
+                Welcome to MIFCO Kooddoo Ferry Ticketing & Verification Suite. Please submit pass requests on time.
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Navigation Tabs -->
+    <nav class="bg-white/60 dark:bg-deepblue-900/60 border-b border-slate-200 dark:border-blue-900/40 backdrop-blur-md sticky top-[57px] md:top-[61px] z-30 transition-colors duration-300">
+        <div class="max-w-7xl mx-auto flex overflow-x-auto px-2">
+            <button onclick="switchTab('ticketing')" id="btn-tab-ticketing" class="tab-btn active px-4 py-3 text-xs font-medium text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white whitespace-nowrap transition-colors flex items-center gap-2">
+                Issue Pass
+            </button>
+            <button onclick="switchTab('supervisor')" id="btn-tab-supervisor" class="tab-btn px-4 py-3 text-xs font-medium text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white whitespace-nowrap transition-colors flex items-center gap-2">
+                Supervisor Approvals
+            </button>
+            <button onclick="switchTab('hod')" id="btn-tab-hod" class="tab-btn px-4 py-3 text-xs font-medium text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white whitespace-nowrap transition-colors flex items-center gap-2">
+                HOD Approvals
+            </button>
+            <button onclick="switchTab('hr')" id="btn-tab-hr" class="tab-btn px-4 py-3 text-xs font-medium text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white whitespace-nowrap transition-colors flex items-center gap-2">
+                HR Records & Rosters
+            </button>
+            <button onclick="switchTab('common-status')" id="btn-tab-common-status" class="tab-btn px-4 py-3 text-xs font-medium text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white whitespace-nowrap transition-colors flex items-center gap-2">
+                Live Status Tracker
+            </button>
+            <button onclick="switchTab('scanner')" id="btn-tab-scanner" class="tab-btn px-4 py-3 text-xs font-medium text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white whitespace-nowrap transition-colors flex items-center gap-2">
+                Captain Scanner
+            </button>
+            <button onclick="switchTab('admin')" id="btn-tab-admin" class="tab-btn px-4 py-3 text-xs font-medium text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white whitespace-nowrap transition-colors flex items-center gap-2 hidden">
+                Admin Users & Announcements
+            </button>
+        </div>
+    </nav>
+
+    <!-- Content Body -->
+    <main class="max-w-7xl mx-auto px-4 py-6 flex-grow w-full">
+
+        <!-- TAB 1: TICKETING -->
+        <section id="tab-ticketing" class="space-y-6">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+                <div class="bg-white dark:bg-deepblue-900 rounded-3xl shadow-xl p-6 border border-slate-200 dark:border-blue-900/45 transition-all">
+                    <h2 class="text-base font-bold text-slate-900 dark:text-white mb-4 pb-3 border-b border-slate-100 dark:border-blue-900/3 flex items-center gap-2.5">
+                        <span class="bg-sky-50 dark:bg-sky-950/80 text-sky-600 dark:text-sky-400 text-xs px-2.5 py-1 rounded-lg font-semibold border border-sky-100 dark:border-sky-800/60">Step 1</span>
+                        Generate Ferry Pass
+                    </h2>
+                    <form id="ticket-form" class="space-y-4">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">Employee Full Name * (Letters only)</label>
+                                <input type="text" id="emp-name" required placeholder="e.g. Mohamed Ahmed" class="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-deepblue-950 border border-slate-200 dark:border-blue-900/60 rounded-xl focus:ring-2 focus:ring-sky-500 focus:outline-none text-xs text-slate-900 dark:text-white">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">Employee ID * (Max 6 digits)</label>
+                                <input type="text" id="emp-id" required maxlength="6" placeholder="e.g. 123456" class="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-deepblue-950 border border-slate-200 dark:border-blue-900/60 rounded-xl focus:ring-2 focus:ring-sky-500 focus:outline-none text-xs text-slate-900 dark:text-white font-mono">
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">Department / Division</label>
+                                <input type="text" id="emp-dept" placeholder="e.g. Production" class="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-deepblue-950 border border-slate-200 dark:border-blue-900/60 rounded-xl focus:ring-2 focus:ring-sky-500 focus:outline-none text-xs text-slate-900 dark:text-white">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">Travel Date *</label>
+                                <input type="date" id="travel-date" required class="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-deepblue-950 border border-slate-200 dark:border-blue-900/60 rounded-xl focus:ring-2 focus:ring-sky-500 focus:outline-none text-xs text-slate-900 dark:text-white">
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">Travel Time *</label>
+                                <input type="time" id="travel-time" required value="08:00" class="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-deepblue-950 border border-slate-200 dark:border-blue-900/60 rounded-xl focus:ring-2 focus:ring-sky-500 focus:outline-none text-xs text-slate-900 dark:text-white font-mono">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">Destination Route *</label>
+                                <select id="route-dest" required class="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-deepblue-950 border border-slate-200 dark:border-blue-900/60 rounded-xl focus:ring-2 focus:ring-sky-500 focus:outline-none text-xs text-slate-900 dark:text-white">
+                                    <option value="Kooddoo Jetty - Vilingili Route">Kooddoo Jetty ⇄ Vilingili</option>
+                                    <option value="Kooddoo Jetty - Nilandhoo Route">Kooddoo Jetty ⇄ Nilandhoo</option>
+                                    <option value="Kooddoo Jetty - Gemanafushi Route">Kooddoo Jetty ⇄ Gemanafushi</option>
+                                    <option value="Kooddoo Jetty - Maamendhoo Route">Kooddoo Jetty ⇄ Maamendhoo</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-1 gap-4">
+                            <div>
+                                <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">Assigned Vessel *</label>
+                                <select id="vessel-name" required class="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-deepblue-950 border border-slate-200 dark:border-blue-900/60 rounded-xl focus:ring-2 focus:ring-sky-500 focus:outline-none text-xs text-slate-900 dark:text-white">
+                                    <option value="MIFCO Express 01">MIFCO Express 01</option>
+                                    <option value="Kooddoo Carrier 03">Kooddoo Carrier 03</option>
+                                    <option value="Fishermen Ferry 05">Fishermen Ferry 05</option>
+                                    <option value="Atoll Voyager 02">Atoll Voyager 02</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="pt-2">
+                            <button type="submit" class="w-full bg-sky-600 hover:bg-sky-500 text-white font-medium py-3 rounded-xl transition-all shadow-lg shadow-sky-600/20 text-xs transform hover:-translate-y-0.5">
+                                Submit Request for Supervisor Approval
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="bg-white dark:bg-deepblue-900 rounded-3xl shadow-xl p-6 border border-slate-200 dark:border-blue-900/45 flex flex-col items-center">
+                    <h2 class="text-base font-bold text-slate-900 dark:text-white mb-4 pb-3 border-b border-slate-100 dark:border-blue-900/36 w-full flex items-center justify-between">
+                        <span class="flex items-center gap-2.5">
+                            <span class="bg-sky-50 dark:bg-sky-950/80 text-sky-700 dark:text-sky-300 text-xs px-2.5 py-1 rounded-lg font-semibold border border-sky-100 dark:border-sky-800/60">Step 2</span>
+                            Digital Ferry Pass Preview
+                        </span>
+                        <div class="flex items-center">
+                            <span id="pass-status-badge" class="text-[11px] bg-slate-100 dark:bg-deepblue-950 text-slate-600 dark:text-slate-300 px-3 py-1 rounded-full font-medium border border-slate-200 dark:border-blue-900/40 whitespace-nowrap">Awaiting Submission</span>
+                        </div>
+                    </h2>
+
+                    <div id="printable-pass" class="w-full max-w-sm bg-gradient-to-br from-deepblue-950 via-deepblue-900 to-deepblue-950 text-white rounded-3xl p-6 shadow-2xl relative overflow-hidden border border-sky-500/30 my-2">
+                        <div class="absolute -right-10 -bottom-10 w-40 h-40 bg-sky-500/15 rounded-full blur-2xl pointer-events-none animate-pulse-glow"></div>
+                        <div class="flex justify-between items-center border-b border-blue-900/60 pb-3 mb-4">
+                            <div>
+                                <h3 class="font-bold text-sm tracking-wide text-sky-200">MIFCO KOODDOO</h3>
+                                <p class="text-[10px] text-slate-400 uppercase tracking-widest font-medium">Official Ferry Pass</p>
+                            </div>
+                            <div class="text-right">
+                                <span id="preview-pass-id" class="text-[11px] font-mono bg-deepblue-950/90 px-2.5 py-1 rounded-xl text-sky-300 border border-sky-800/70 shadow-inner">---</span>
+                            </div>
+                        </div>
+                        <div class="space-y-3 mb-6 text-xs">
+                            <div>
+                                <p class="text-[10px] text-sky-300 uppercase tracking-wider font-semibold">Passenger Name</p>
+                                <p id="preview-name" class="font-bold text-sm text-white tracking-wide">---</p>
+                            </div>
+                            <div class="grid grid-cols-2 gap-2">
+                                <div>
+                                    <p class="text-[10px] text-sky-300 uppercase tracking-wider font-semibold">Employee ID</p>
+                                    <p id="preview-empid" class="font-mono text-xs text-slate-300">---</p>
+                                </div>
+                                <div>
+                                    <p class="text-[10px] text-sky-300 uppercase tracking-wider font-semibold">Department</p>
+                                    <p id="preview-dept" class="text-xs text-slate-300">---</p>
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-2 gap-2 pt-2 border-t border-blue-900/40">
+                                <div>
+                                    <p class="text-[10px] text-sky-300 uppercase tracking-wider font-semibold">Vessel</p>
+                                    <p id="preview-vessel" class="text-xs font-semibold text-white">---</p>
+                                </div>
+                                <div>
+                                    <p class="text-[10px] text-sky-300 uppercase tracking-wider font-semibold">Travel Date & Time</p>
+                                    <p id="preview-date" class="text-xs font-semibold text-sky-300 font-mono">---</p>
+                                </div>
+                            </div>
+                            <div>
+                                <p class="text-[10px] text-sky-300 uppercase tracking-wider font-semibold">Route</p>
+                                <p id="preview-route" class="text-xs text-slate-300">---</p>
+                            </div>
+                        </div>
+                        <div class="bg-white p-3.5 rounded-2xl flex items-center justify-center gap-4 text-slate-900 shadow-lg">
+                            <div id="qrcode" class="bg-white p-1 text-[11px] text-slate-400 text-center font-medium min-h-[85px] min-w-[85px] flex items-center justify-center">Pending Approvals</div>
+                            <div class="text-[11px] text-slate-600 leading-tight">
+                                <p id="preview-approval-note" class="font-bold text-slate-900 mb-0.5">Awaiting Verifications</p>
+                                <p class="text-[10px] text-slate-500">QR code unlocks once fully verified.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="pass-actions" class="flex gap-3 w-full max-w-sm mt-4 hidden">
+                        <button onclick="downloadPassPNG()" class="flex-1 bg-sky-600 hover:bg-sky-500 text-white font-medium py-2.5 rounded-xl text-xs transition shadow-md shadow-sky-600/20 flex items-center justify-center gap-1.5">
+                            Download PNG Badge
+                        </button>
+                        <button onclick="window.print()" class="flex-1 bg-slate-800 dark:bg-deepblue-950 hover:bg-slate-700 dark:hover:bg-deepblue-800 text-white font-medium py-2.5 rounded-xl text-xs transition shadow-md border border-slate-700 dark:border-blue-900/60 flex items-center justify-center gap-1.5">
+                            Print Pass
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 2: SUPERVISOR APPROVALS -->
+        <section id="tab-supervisor" class="hidden space-y-6">
+            <div class="bg-white dark:bg-deepblue-900 rounded-3xl shadow-xl p-6 border border-slate-200 dark:border-blue-900/45">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6 pb-4 border-b border-slate-100 dark:border-blue-900/36">
+                    <div>
+                        <h2 class="text-base font-bold text-slate-900 dark:text-white">Supervisor Approval Dashboard</h2>
+                        <p class="text-xs text-slate-500 dark:text-slate-400">Review and verify initial ferry pass requests.</p>
+                    </div>
+                    <button onclick="loadPassesFromFirebase()" class="bg-slate-100 dark:bg-deepblue-950 hover:bg-slate-200 dark:hover:bg-deepblue-800 text-slate-700 dark:text-slate-300 text-xs font-medium px-3.5 py-2 rounded-xl transition border border-slate-200 dark:border-blue-900/60">
+                        Refresh List
+                    </button>
+                </div>
+                <div class="overflow-x-auto border border-slate-200 dark:border-blue-900/40 rounded-2xl shadow-inner">
+                    <table class="w-full text-left border-collapse text-xs">
+                        <thead>
+                            <tr class="bg-slate-50 dark:bg-deepblue-950 text-slate-600 dark:text-slate-300 font-semibold border-b border-slate-200 dark:border-blue-900/40">
+                                <th class="p-3.5">Pass ID</th>
+                                <th class="p-3.5">Employee Name</th>
+                                <th class="p-3.5">Emp ID</th>
+                                <th class="p-3.5">Department</th>
+                                <th class="p-3.5">Route & Vessel</th>
+                                <th class="p-3.5">Travel Date & Time</th>
+                                <th class="p-3.5 text-center">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="supervisor-table-body" class="divide-y divide-slate-100 dark:divide-blue-900/30">
+                            <tr><td colspan="7" class="p-6 text-center text-slate-500 dark:text-slate-400">Loading pending supervisor approvals...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 3: HOD APPROVALS -->
+        <section id="tab-hod" class="hidden space-y-6">
+            <div class="bg-white dark:bg-deepblue-900 rounded-3xl shadow-xl p-6 border border-slate-200 dark:border-blue-900/45">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6 pb-4 border-b border-slate-100 dark:border-blue-900/36">
+                    <div>
+                        <h2 class="text-base font-bold text-slate-900 dark:text-white">HOD Pass Approval Dashboard</h2>
+                        <p class="text-xs text-slate-500 dark:text-slate-400">Review supervisor-approved pass requests prior to HR verification.</p>
+                    </div>
+                    <button onclick="loadPassesFromFirebase()" class="bg-slate-100 dark:bg-deepblue-950 hover:bg-slate-200 dark:hover:bg-deepblue-800 text-slate-700 dark:text-slate-300 text-xs font-medium px-3.5 py-2 rounded-xl transition border border-slate-200 dark:border-blue-900/60">
+                        Refresh List
+                    </button>
+                </div>
+                <div class="overflow-x-auto border border-slate-200 dark:border-blue-900/40 rounded-2xl shadow-inner">
+                    <table class="w-full text-left border-collapse text-xs">
+                        <thead>
+                            <tr class="bg-slate-50 dark:bg-deepblue-950 text-slate-600 dark:text-slate-300 font-semibold border-b border-slate-200 dark:border-blue-900/40">
+                                <th class="p-3.5">Pass ID</th>
+                                <th class="p-3.5">Employee Name</th>
+                                <th class="p-3.5">Emp ID</th>
+                                <th class="p-3.5">Department</th>
+                                <th class="p-3.5">Route & Vessel</th>
+                                <th class="p-3.5">Travel Date & Time</th>
+                                <th class="p-3.5 text-center">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="hod-table-body" class="divide-y divide-slate-100 dark:divide-blue-900/30">
+                            <tr><td colspan="7" class="p-6 text-center text-slate-500 dark:text-slate-400">Loading pending HOD approvals...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 4: HR PASS RECORDS & ROSTERS -->
+        <section id="tab-hr" class="hidden space-y-6">
+            <div class="bg-white dark:bg-deepblue-900 rounded-3xl shadow-xl p-6 border border-slate-200 dark:border-blue-900/45">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6 pb-4 border-b border-slate-100 dark:border-blue-900/36">
+                    <div>
+                        <h2 class="text-base font-bold text-slate-900 dark:text-white">HR Records & Vessel Passenger Rosters</h2>
+                        <p class="text-xs text-slate-500 dark:text-slate-400">Verify passes, manage denials, monitor active rosters, delete passes, and export records.</p>
+                    </div>
+                    <div class="flex flex-wrap gap-2 w-full md:w-auto">
+                        <button onclick="exportToExcel()" class="bg-sky-600 hover:bg-sky-500 text-white text-xs font-medium px-4 py-2 rounded-xl transition shadow-md shadow-sky-600/20">
+                            Export to Excel (.xlsx)
+                        </button>
+                        <button onclick="loadPassesFromFirebase()" class="bg-slate-100 dark:bg-deepblue-950 hover:bg-slate-200 dark:hover:bg-deepblue-800 text-slate-700 dark:text-slate-300 text-xs font-medium px-3.5 py-2 rounded-xl transition border border-slate-200 dark:border-blue-900/60">
+                            Refresh
+                        </button>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+                    <div>
+                        <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">Filter by Vessel</label>
+                        <select id="filter-vessel" onchange="renderHRTable()" class="w-full px-3.5 py-2.5 border border-slate-200 dark:border-blue-900/60 rounded-xl text-xs bg-white dark:bg-deepblue-950 text-slate-900 dark:text-white">
+                            <option value="">All Vessels</option>
+                            <option value="MIFCO Express 01">MIFCO Express 01</option>
+                            <option value="Kooddoo Carrier 03">Kooddoo Carrier 03</option>
+                            <option value="Fishermen Ferry 05">Fishermen Ferry 05</option>
+                            <option value="Atoll Voyager 02">Atoll Voyager 02</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">Filter by Date</label>
+                        <input type="date" id="filter-date" onchange="renderHRTable()" class="w-full px-3.5 py-2.5 border border-slate-200 dark:border-blue-900/60 rounded-xl text-xs bg-white dark:bg-deepblue-950 text-slate-900 dark:text-white">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">Search Employee / ID</label>
+                        <input type="text" id="filter-search" oninput="renderHRTable()" placeholder="Search name or ID..." class="w-full px-3.5 py-2.5 border border-slate-200 dark:border-blue-900/60 rounded-xl text-xs bg-white dark:bg-deepblue-950 text-slate-900 dark:text-white placeholder-slate-400">
+                    </div>
+                </div>
+
+                <div class="overflow-x-auto border border-slate-200 dark:border-blue-900/40 rounded-2xl shadow-inner">
+                    <table class="w-full text-left border-collapse text-xs">
+                        <thead>
+                            <tr class="bg-slate-50 dark:bg-deepblue-950 text-slate-600 dark:text-slate-300 font-semibold border-b border-slate-200 dark:border-blue-900/40">
+                                <th class="p-3.5">Pass ID</th>
+                                <th class="p-3.5">Employee Name</th>
+                                <th class="p-3.5">Emp ID</th>
+                                <th class="p-3.5">Department</th>
+                                <th class="p-3.5">Route & Vessel</th>
+                                <th class="p-3.5">Travel Date & Time</th>
+                                <th class="p-3.5">Issued Time</th>
+                                <th class="p-3.5 text-center">Status / HR Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="passes-table-body" class="divide-y divide-slate-100 dark:divide-blue-900/30">
+                            <tr><td colspan="8" class="p-6 text-center text-slate-500 dark:text-slate-400">Loading passes from Firebase...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 5: 3D CAPSULE COMMON STATUS TRACKER -->
+        <section id="tab-common-status" class="hidden space-y-6">
+            <div class="bg-gradient-to-br from-deepblue-950 via-deepblue-900 to-deepblue-950 rounded-3xl shadow-2xl p-6 md:p-8 border border-blue-900/40 text-white relative overflow-hidden capsule-shimmer">
+                <div class="absolute -right-20 -top-20 w-80 h-80 bg-sky-600/15 rounded-full blur-3xl pointer-events-none animate-pulse-glow"></div>
+                <div class="absolute -left-20 -bottom-20 w-80 h-80 bg-cyan-500/15 rounded-full blur-3xl pointer-events-none"></div>
+                
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8 pb-5 border-b border-blue-900/50 relative z-10">
+                    <div>
+                        <span id="network-status-badge" class="text-[10px] font-mono tracking-widest uppercase bg-emerald-500/20 text-emerald-300 px-3 py-1 rounded-full border border-emerald-500/30 mb-2 inline-flex items-center gap-1.5"><span id="network-dot" class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>Online</span>
+                        <h2 class="text-xl font-bold tracking-tight text-white flex items-center gap-2.5">
+                            Live Boarding Update
+                        </h2>
+                        <p class="text-xs text-slate-300 mt-1">Real-time motion tracker displaying approval milestones with animated capsule containers and floating ferry transit.</p>
+                    </div>
+                    <div class="flex gap-3 w-full md:w-auto">
+                        <input type="text" id="common-status-search" oninput="renderCommonStatusTracker()" placeholder="Filter employee or ID..." class="px-4 py-2.5 bg-deepblue-950/90 border border-blue-900/70 rounded-2xl text-xs text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-500 backdrop-blur-md shadow-inner">
+                        <button onclick="loadPassesFromFirebase()" class="bg-sky-600 hover:bg-sky-500 text-white text-xs font-medium px-4 py-2.5 rounded-2xl transition shadow-lg shadow-sky-600/30">
+                            Refresh
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 3D Capsule Cards Grid Container -->
+                <div id="common-status-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 perspective-container relative z-10">
+                    <!-- Populated dynamically via JS -->
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 6: CAPTAIN / DRIVER SCANNER -->
+        <section id="tab-scanner" class="hidden space-y-6">
+            <div class="bg-white dark:bg-deepblue-900 rounded-3xl shadow-xl p-6 border border-slate-200 dark:border-blue-900/45 max-w-2xl mx-auto">
+                <h2 class="text-base font-bold text-slate-900 dark:text-white mb-1">Captain / Driver Pass Verification</h2>
+                <p class="text-xs text-slate-500 dark:text-slate-400 mb-6">Type Pass ID, take a live photo of the QR code, or upload a saved image to verify clearance.</p>
+                
+                <div class="flex gap-2.5 mb-4">
+                    <input type="text" id="scanner-input" placeholder="Enter Pass ID (e.g. MKF-XXXXXX)" class="flex-grow px-4 py-3 border border-slate-200 dark:border-blue-900/60 rounded-xl focus:ring-2 focus:ring-sky-500 focus:outline-none font-mono text-xs uppercase bg-slate-50 dark:bg-deepblue-950 text-slate-900 dark:text-white">
+                    <button onclick="handleScan()" class="bg-sky-600 hover:bg-sky-500 text-white font-medium px-6 py-3 rounded-xl transition text-xs shadow-md shadow-sky-600/20">
+                        Verify Pass
+                    </button>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
+                    <label class="bg-sky-600 hover:bg-sky-500 text-white text-xs font-medium py-3.5 px-4 rounded-xl transition flex items-center justify-center gap-2 shadow-md shadow-sky-600/20 cursor-pointer text-center">
+                        Take Live Photo of QR Code
+                        <input type="file" accept="image/*" capture="environment" class="hidden" onchange="scanQRFromFile(event)">
+                    </label>
+                    <label class="bg-slate-800 dark:bg-deepblue-950 hover:bg-slate-700 dark:hover:bg-deepblue-800 text-white text-xs font-medium py-3.5 px-4 rounded-xl transition flex items-center justify-center gap-2 shadow-md border border-slate-700 dark:border-blue-900/60 cursor-pointer text-center">
+                        Upload QR Image from File
+                        <input type="file" accept="image/*" class="hidden" onchange="scanQRFromFile(event)">
+                    </label>
+                </div>
+                <div id="reader" class="hidden"></div>
+                <div id="scan-result" class="hidden border border-slate-200 dark:border-blue-900/40 rounded-2xl p-5 bg-slate-50 dark:bg-deepblue-950"></div>
+            </div>
+        </section>
+
+        <!-- TAB 7: ADMIN USER MANAGEMENT & ANNOUNCEMENTS -->
+        <section id="tab-admin" class="hidden space-y-6">
+            <div class="bg-white dark:bg-deepblue-900 rounded-3xl shadow-xl p-6 border border-slate-200 dark:border-blue-900/45 max-w-4xl mx-auto space-y-8">
+                <div class="flex justify-between items-center pb-4 border-b border-slate-100 dark:border-blue-900/36">
+                    <div>
+                        <h2 class="text-base font-bold text-slate-900 dark:text-white">Admin Dashboard</h2>
+                        <p class="text-xs text-slate-500 dark:text-slate-400">Manage system users, reset passwords, and publish live scrolling ticker announcements.</p>
+                    </div>
+                </div>
+
+                <!-- Announcement Management Box -->
+                <div class="bg-slate-50 dark:bg-deepblue-950 p-5 rounded-2xl border border-slate-200 dark:border-blue-900/60 space-y-4 shadow-inner">
+                    <h3 class="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full bg-sky-500 animate-pulse"></span>
+                        Publish Live Scrolling Announcement
+                    </h3>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">Announcement Text *</label>
+                        <input type="text" id="admin-announcement-input" placeholder="e.g. Ferry 01 delayed by 15 minutes due to weather conditions..." class="w-full px-3.5 py-2.5 border border-slate-200 dark:border-blue-900/60 rounded-xl text-xs bg-white dark:bg-deepblue-900 text-slate-900 dark:text-white">
+                    </div>
+                    <button onclick="updateAnnouncement()" class="bg-sky-600 hover:bg-sky-500 text-white font-medium px-4 py-2.5 rounded-xl text-xs transition shadow-md shadow-sky-600/20">
+                        Update Live Announcement
+                    </button>
+                </div>
+
+                <!-- User Account Creation Box -->
+                <form id="create-user-form" class="bg-slate-50 dark:bg-deepblue-950 p-5 rounded-2xl border border-slate-200 dark:border-blue-900/60 space-y-4 shadow-inner">
+                    <h3 class="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">Create New System User</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                            <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">Username *</label>
+                            <input type="text" id="new-username" required placeholder="e.g. hod_procurement" class="w-full px-3.5 py-2.5 border border-slate-200 dark:border-blue-900/60 rounded-xl text-xs bg-white dark:bg-deepblue-900 text-slate-900 dark:text-white">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">Password *</label>
+                            <input type="password" id="new-password" required placeholder="••••••••" class="w-full px-3.5 py-2.5 border border-slate-200 dark:border-blue-900/60 rounded-xl text-xs bg-white dark:bg-deepblue-900 text-slate-900 dark:text-white">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">Assigned Role *</label>
+                            <select id="new-role" required class="w-full px-3.5 py-2.5 border border-slate-200 dark:border-blue-900/60 rounded-xl text-xs bg-white dark:bg-deepblue-900 text-slate-900 dark:text-white">
+                                <option value="hr">HR (Ticketing & Records)</option>
+                                <option value="supervisor">Supervisor (Approvals)</option>
+                                <option value="hod">HOD (Approvals)</option>
+                                <option value="captain">Captain / Driver (Scanner)</option>
+                                <option value="admin">Administrator</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button type="submit" class="bg-sky-600 hover:bg-sky-500 text-white font-medium px-4 py-2.5 rounded-xl text-xs transition shadow-md shadow-sky-600/20">
+                        Create User Account
+                    </button>
+                </form>
+
+                <h3 class="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider mb-2">Existing System Users</h3>
+                <div class="overflow-x-auto border border-slate-200 dark:border-blue-900/40 rounded-2xl shadow-inner">
+                    <table class="w-full text-left border-collapse text-xs">
+                        <thead>
+                            <tr class="bg-slate-50 dark:bg-deepblue-950 text-slate-600 dark:text-slate-300 font-semibold border-b border-slate-200 dark:border-blue-900/40">
+                                <th class="p-3.5">Username</th>
+                                <th class="p-3.5">Role</th>
+                                <th class="p-3.5 text-center">Reset Password</th>
+                                <th class="p-3.5 text-center">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="users-table-body" class="divide-y divide-slate-100 dark:divide-blue-900/30">
+                            <tr><td colspan="4" class="p-6 text-center text-slate-500 dark:text-slate-400">Loading users...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Custom Professional Dialog Modal -->
+    <div id="custom-dialog-modal" class="fixed inset-0 bg-slate-950/70 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-deepblue-900 border border-slate-200 dark:border-blue-900/50 text-slate-900 dark:text-white rounded-3xl shadow-2xl max-w-sm w-full p-6 relative flex flex-col items-start space-y-4">
+            <h3 id="custom-dialog-title" class="text-sm font-bold text-slate-900 dark:text-white">System Notice</h3>
+            <p id="custom-dialog-message" class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed"></p>
+            <div id="custom-dialog-input-container" class="w-full hidden">
+                <input type="text" id="custom-dialog-input" class="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-deepblue-950 border border-slate-200 dark:border-blue-900/60 rounded-xl text-xs text-slate-900 dark:text-white focus:ring-2 focus:ring-sky-500 focus:outline-none" placeholder="">
+            </div>
+            <div id="custom-dialog-buttons" class="flex justify-end gap-2.5 w-full pt-3 border-t border-slate-100 dark:border-blue-900/40">
+                <button id="custom-dialog-cancel-btn" class="px-4 py-2 bg-slate-100 dark:bg-deepblue-950 hover:bg-slate-200 dark:hover:bg-deepblue-800 text-slate-700 dark:text-slate-300 font-medium rounded-xl text-xs transition hidden border border-slate-200 dark:border-blue-900/60">Cancel</button>
+                <button id="custom-dialog-ok-btn" class="px-4 py-2 bg-sky-600 hover:bg-sky-500 text-white font-medium rounded-xl text-xs transition shadow-md shadow-sky-600/20">OK</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for HR Pass Preview & Download -->
+    <div id="hr-preview-modal" class="fixed inset-0 bg-slate-950/70 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-deepblue-900 border border-slate-200 dark:border-blue-900/50 rounded-3xl shadow-2xl max-w-md w-full p-6 relative flex flex-col items-center text-slate-900 dark:text-white">
+            <button onclick="closeHRPreviewModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-700 dark:hover:text-white text-base font-bold">✕</button>
+            <h3 class="text-sm font-bold text-slate-900 dark:text-white mb-4 w-full text-left border-b border-slate-100 dark:border-blue-900/40 pb-2">Digital Ferry Pass Preview</h3>
+            
+            <div id="modal-printable-pass" class="w-full max-w-sm bg-gradient-to-br from-deepblue-950 via-deepblue-900 to-deepblue-950 text-white rounded-3xl p-6 shadow-2xl relative overflow-hidden border border-sky-500/30 my-2">
+                <div class="absolute -right-10 -bottom-10 w-40 h-40 bg-sky-500/15 rounded-full blur-2xl pointer-events-none"></div>
+                <div class="flex justify-between items-center border-b border-blue-900/60 pb-3 mb-4">
+                    <div>
+                        <h3 class="font-bold text-sm tracking-wide text-sky-200">MIFCO KOODDOO</h3>
+                        <p class="text-[10px] text-slate-400 uppercase tracking-widest font-medium">Official Ferry Pass</p>
+                    </div>
+                    <div class="text-right">
+                        <span id="modal-preview-pass-id" class="text-[11px] font-mono bg-deepblue-950/90 px-2.5 py-1 rounded-xl text-sky-300 border border-sky-800/70 shadow-inner">---</span>
+                    </div>
+                </div>
+                <div class="space-y-3 mb-6 text-xs">
+                    <div>
+                        <p class="text-[10px] text-sky-300 uppercase tracking-wider font-semibold">Passenger Name</p>
+                        <p id="modal-preview-name" class="font-bold text-sm text-white tracking-wide">---</p>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <p class="text-[10px] text-sky-300 uppercase tracking-wider font-semibold">Employee ID</p>
+                            <p id="modal-preview-empid" class="font-mono text-xs text-slate-300">---</p>
+                        </div>
+                        <div>
+                            <p class="text-[10px] text-sky-300 uppercase tracking-wider font-semibold">Department</p>
+                            <p id="modal-preview-dept" class="text-xs text-slate-300">---</p>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2 pt-2 border-t border-blue-900/40">
+                        <div>
+                            <p class="text-[10px] text-sky-300 uppercase tracking-wider font-semibold">Vessel</p>
+                            <p id="modal-preview-vessel" class="text-xs font-semibold text-white">---</p>
+                        </div>
+                        <div>
+                            <p class="text-[10px] text-sky-300 uppercase tracking-wider font-semibold">Travel Date & Time</p>
+                            <p id="modal-preview-date" class="text-xs font-semibold text-sky-300 font-mono">---</p>
+                        </div>
+                    </div>
+                    <div>
+                        <p class="text-[10px] text-sky-300 uppercase tracking-wider font-semibold">Route</p>
+                        <p id="modal-preview-route" class="text-xs text-slate-300">---</p>
+                    </div>
+                </div>
+                <div class="bg-white p-3.5 rounded-2xl flex items-center justify-center gap-4 text-slate-900 shadow-lg">
+                    <div id="modal-qrcode" class="bg-white p-1 text-[11px] text-slate-400 text-center font-medium min-h-[85px] min-w-[85px] flex items-center justify-center"></div>
+                    <div class="text-[11px] text-slate-600 leading-tight">
+                        <p class="font-bold text-slate-900 mb-0.5">Scan to Verify</p>
+                        <p class="text-[10px] text-slate-500">Official verified pass.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex gap-3 w-full max-w-sm mt-4">
+                <button onclick="downloadModalPassPNG()" class="flex-1 bg-sky-600 hover:bg-sky-500 text-white font-medium py-2.5 rounded-xl text-xs transition shadow-md shadow-sky-600/20 flex items-center justify-center gap-1.5">
+                    Download PNG Badge
+                </button>
+                <button onclick="closeHRPreviewModal()" class="px-4 bg-slate-100 dark:bg-deepblue-950 hover:bg-slate-200 dark:hover:bg-deepblue-800 text-slate-700 dark:text-slate-300 font-medium py-2.5 rounded-xl text-xs transition border border-slate-200 dark:border-blue-900/60">
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-white/80 dark:bg-deepblue-950/80 border-t border-slate-200 dark:border-blue-900/40 text-slate-500 dark:text-slate-400 mt-auto py-4 text-center text-xs backdrop-blur-md">
+        <p>MIFCO Kooddoo Fisheries Complex &copy; 2026. All rights reserved. Developed by Shahinth Jeewaratnam (KFC-IT)</p>
+    </footer>
+
+    <!-- Firebase SDK Imports (Modular CDN) -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
+        import { getFirestore, collection, addDoc, getDocs, updateDoc, deleteDoc, doc, onSnapshot, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDArcqlyI0w-_shRRXKaWH6nijk2JH4eaM",
+            authDomain: "mifco-ferry-system.firebaseapp.com",
+            projectId: "mifco-ferry-system",
+            storageBucket: "mifco-ferry-system.firebasestorage.app",
+            messagingSenderId: "780972996041",
+            appId: "1:780972996041:web:75b7260611df9094252418",
+            measurementId: "G-3QDNB0BK3V"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const passesCollection = collection(db, "passes");
+        const usersCollection = collection(db, "system_users");
+        const settingsDocRef = doc(db, "system_settings", "announcement");
+
+        let allPasses = [];
+        let allUsers = [];
+        let currentUser = null;
+        let currentQRCode = null;
+        let activePassDetails = null;
+        let modalActivePass = null;
+
+        // Real-time input validation handlers to prevent typing invalid characters
+        document.getElementById('emp-id').addEventListener('input', function(e) {
+            this.value = this.value.replace(/\D/g, '').slice(0, 6);
+        });
+
+        document.getElementById('emp-name').addEventListener('input', function(e) {
+            this.value = this.value.replace(/[^A-Za-z\s]/g, '');
+        });
+
+        // Network Status Updater
+        function updateNetworkStatus() {
+            const badge = document.getElementById('network-status-badge');
+            const dot = document.getElementById('network-dot');
+            if (!badge || !dot) return;
+            if (navigator.onLine) {
+                badge.className = "text-[10px] font-mono tracking-widest uppercase bg-emerald-500/20 text-emerald-300 px-3 py-1 rounded-full border border-emerald-500/30 mb-2 inline-flex items-center gap-1.5";
+                badge.innerHTML = `<span id="network-dot" class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>Online`;
+            } else {
+                badge.className = "text-[10px] font-mono tracking-widest uppercase bg-red-500/20 text-red-300 px-3 py-1 rounded-full border border-red-500/30 mb-2 inline-flex items-center gap-1.5";
+                badge.innerHTML = `<span id="network-dot" class="w-2 h-2 rounded-full bg-red-500 animate-ping"></span>Offline`;
+            }
+        }
+        window.addEventListener('online', updateNetworkStatus);
+        window.addEventListener('offline', updateNetworkStatus);
+        setInterval(updateNetworkStatus, 3000);
+
+        // Theme Toggle Handler with Ocean Login Background Sync
+        window.toggleTheme = function() {
+            const htmlEl = document.documentElement;
+            const loginModal = document.getElementById('login-modal');
+            const isDark = htmlEl.classList.contains('dark');
+            if (isDark) {
+                htmlEl.classList.remove('dark');
+                if (loginModal) {
+                    loginModal.classList.remove('ocean-bg-dark');
+                    loginModal.classList.add('ocean-bg-light');
+                }
+                document.getElementById('theme-icon').innerText = '☀️';
+                document.getElementById('theme-text').innerText = 'Light';
+                localStorage.setItem('mifco_theme', 'light');
+            } else {
+                htmlEl.classList.add('dark');
+                if (loginModal) {
+                    loginModal.classList.remove('ocean-bg-light');
+                    loginModal.classList.add('ocean-bg-dark');
+                }
+                document.getElementById('theme-icon').innerText = '🌙';
+                document.getElementById('theme-text').innerText = 'Dark';
+                localStorage.setItem('mifco_theme', 'dark');
+            }
+        }
+
+        // Initialize Theme from Storage
+        const savedTheme = localStorage.getItem('mifco_theme');
+        const loginModal = document.getElementById('login-modal');
+        if (savedTheme === 'light') {
+            document.documentElement.classList.remove('dark');
+            if (loginModal) {
+                loginModal.classList.remove('ocean-bg-dark');
+                loginModal.classList.add('ocean-bg-light');
+            }
+            document.getElementById('theme-icon').innerText = '☀️';
+            document.getElementById('theme-text').innerText = 'Light';
+        } else {
+            if (loginModal) {
+                loginModal.classList.remove('ocean-bg-light');
+                loginModal.classList.add('ocean-bg-dark');
+            }
+        }
+
+        window.showCustomAlert = function(message, title = "System Notice") {
+            return new Promise((resolve) => {
+                const modal = document.getElementById('custom-dialog-modal');
+                document.getElementById('custom-dialog-title').innerText = title;
+                document.getElementById('custom-dialog-message').innerText = message;
+                document.getElementById('custom-dialog-input-container').classList.add('hidden');
+                document.getElementById('custom-dialog-cancel-btn').classList.add('hidden');
+                modal.classList.remove('hidden');
+                gsap.fromTo(modal.firstElementChild, { scale: 0.9, opacity: 0, y: 20 }, { scale: 1, opacity: 1, y: 0, duration: 0.4, ease: "power3.out" });
+                const okBtn = document.getElementById('custom-dialog-ok-btn');
+                const newOkBtn = okBtn.cloneNode(true);
+                okBtn.parentNode.replaceChild(newOkBtn, okBtn);
+                newOkBtn.onclick = () => {
+                    gsap.to(modal.firstElementChild, { scale: 0.9, opacity: 0, duration: 0.3, onComplete: () => {
+                        modal.classList.add('hidden');
+                        resolve(true);
+                    }});
+                };
+            });
+        }
+
+        window.showCustomConfirm = function(message, title = "Confirmation Required") {
+            return new Promise((resolve) => {
+                const modal = document.getElementById('custom-dialog-modal');
+                document.getElementById('custom-dialog-title').innerText = title;
+                document.getElementById('custom-dialog-message').innerText = message;
+                document.getElementById('custom-dialog-input-container').classList.add('hidden');
+                const cancelBtn = document.getElementById('custom-dialog-cancel-btn');
+                cancelBtn.classList.remove('hidden');
+                modal.classList.remove('hidden');
+                gsap.fromTo(modal.firstElementChild, { scale: 0.9, opacity: 0, y: 20 }, { scale: 1, opacity: 1, y: 0, duration: 0.4, ease: "power3.out" });
+                const okBtn = document.getElementById('custom-dialog-ok-btn');
+                const newOkBtn = okBtn.cloneNode(true);
+                okBtn.parentNode.replaceChild(newOkBtn, okBtn);
+                const newCancelBtn = cancelBtn.cloneNode(true);
+                cancelBtn.parentNode.replaceChild(newCancelBtn, cancelBtn);
+                newOkBtn.onclick = () => {
+                    gsap.to(modal.firstElementChild, { scale: 0.9, opacity: 0, duration: 0.3, onComplete: () => {
+                        modal.classList.add('hidden');
+                        resolve(true);
+                    }});
+                };
+                newCancelBtn.onclick = () => {
+                    gsap.to(modal.firstElementChild, { scale: 0.9, opacity: 0, duration: 0.3, onComplete: () => {
+                        modal.classList.add('hidden');
+                        resolve(false);
+                    }});
+                };
+            });
+        }
+
+        window.showCustomPrompt = function(message, title = "Input Required", placeholder = "") {
+            return new Promise((resolve) => {
+                const modal = document.getElementById('custom-dialog-modal');
+                document.getElementById('custom-dialog-title').innerText = title;
+                document.getElementById('custom-dialog-message').innerText = message;
+                const inputContainer = document.getElementById('custom-dialog-input-container');
+                inputContainer.classList.remove('hidden');
+                const inputField = document.getElementById('custom-dialog-input');
+                inputField.value = "";
+                inputField.placeholder = placeholder;
+                inputField.type = placeholder.toLowerCase().includes('password') ? 'password' : 'text';
+                const cancelBtn = document.getElementById('custom-dialog-cancel-btn');
+                cancelBtn.classList.remove('hidden');
+                modal.classList.remove('hidden');
+                gsap.fromTo(modal.firstElementChild, { scale: 0.9, opacity: 0, y: 20 }, { scale: 1, opacity: 1, y: 0, duration: 0.4, ease: "power3.out" });
+                inputField.focus();
+                const okBtn = document.getElementById('custom-dialog-ok-btn');
+                const newOkBtn = okBtn.cloneNode(true);
+                okBtn.parentNode.replaceChild(newOkBtn, okBtn);
+                const newCancelBtn = cancelBtn.cloneNode(true);
+                cancelBtn.parentNode.replaceChild(newCancelBtn, cancelBtn);
+                newOkBtn.onclick = () => {
+                    const val = inputField.value;
+                    gsap.to(modal.firstElementChild, { scale: 0.9, opacity: 0, duration: 0.3, onComplete: () => {
+                        modal.classList.add('hidden');
+                        resolve(val);
+                    }});
+                };
+                newCancelBtn.onclick = () => {
+                    gsap.to(modal.firstElementChild, { scale: 0.9, opacity: 0, duration: 0.3, onComplete: () => {
+                        modal.classList.add('hidden');
+                        resolve(null);
+                    }});
+                };
+            });
+        }
+
+        async function initializeDefaultUsers() {
+            try {
+                const snap = await getDocs(usersCollection);
+                if (snap.empty) {
+                    const defaults = [
+                        { username: 'admin', password: 'Welcome@123', role: 'admin' },
+                        { username: 'hr', password: 'Welcome@123', role: 'hr' },
+                        { username: 'sup', password: 'Welcome@123', role: 'supervisor' },
+                        { username: 'hod', password: 'Welcome@123', role: 'hod' },
+                        { username: 'cap', password: 'Welcome@123', role: 'captain' }
+                    ];
+                    for (let u of defaults) {
+                        await addDoc(usersCollection, u);
+                    }
+                }
+            } catch (err) {
+                console.error("Error seeding default users:", err);
+            }
+        }
+
+        async function loadUsers() {
+            try {
+                const snap = await getDocs(usersCollection);
+                allUsers = [];
+                snap.forEach(docSnap => {
+                    allUsers.push({ firestoreId: docSnap.id, ...docSnap.data() });
+                });
+                renderUsersTable();
+            } catch (err) {
+                console.error("Error loading users:", err);
+            }
+        }
+
+        document.getElementById('login-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const uInput = document.getElementById('login-username').value.trim().toLowerCase();
+            const pInput = document.getElementById('login-password').value.trim();
+
+            if (allUsers.length === 0) await loadUsers();
+
+            const matched = allUsers.find(u => u.username.toLowerCase() === uInput && u.password === pInput);
+            if (!matched) {
+                await showCustomAlert("Invalid username or password. Please check your credentials.", "Login Failed");
+                return;
+            }
+
+            currentUser = { username: matched.username, role: matched.role };
+            document.getElementById('current-user-display').innerText = matched.username;
+            document.getElementById('current-role-display').innerText = matched.role.toUpperCase();
+            document.getElementById('user-session-box').classList.remove('hidden');
+            
+            // Noomo-style cinematic login modal exit animation
+            gsap.to('#login-modal', { opacity: 0, scale: 1.05, duration: 0.8, ease: "power3.inOut", onComplete: () => {
+                document.getElementById('login-modal').classList.add('hidden');
+            }});
+
+            if (matched.role === 'admin') {
+                document.getElementById('btn-tab-admin').classList.remove('hidden');
+                switchTab('admin');
+            } else if (matched.role === 'hr') {
+                document.getElementById('btn-tab-admin').classList.add('hidden');
+                switchTab('ticketing');
+            } else if (matched.role === 'supervisor') {
+                document.getElementById('btn-tab-admin').classList.add('hidden');
+                switchTab('supervisor');
+            } else if (matched.role === 'hod') {
+                document.getElementById('btn-tab-admin').classList.add('hidden');
+                switchTab('hod');
+            } else if (matched.role === 'captain') {
+                document.getElementById('btn-tab-admin').classList.add('hidden');
+                switchTab('scanner');
+            }
+        });
+
+        window.logoutUser = function() {
+            currentUser = null;
+            document.getElementById('user-session-box').classList.add('hidden');
+            document.getElementById('login-password').value = '';
+            const modal = document.getElementById('login-modal');
+            modal.classList.remove('hidden');
+            gsap.fromTo(modal, { opacity: 0, scale: 0.95 }, { opacity: 1, scale: 1, duration: 0.6, ease: "power3.out" });
+        }
+
+        document.getElementById('create-user-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            if (!currentUser || currentUser.role !== 'admin') {
+                await showCustomAlert("Access denied: Administrator privileges required.", "Access Restricted");
+                return;
+            }
+            const username = document.getElementById('new-username').value.trim();
+            const password = document.getElementById('new-password').value.trim();
+            const role = document.getElementById('new-role').value;
+
+            try {
+                await addDoc(usersCollection, { username, password, role });
+                await showCustomAlert(`User "${username}" created successfully with role "${role.toUpperCase()}".`, "User Created");
+                document.getElementById('create-user-form').reset();
+                loadUsers();
+            } catch (err) {
+                console.error("Error creating user:", err);
+                await showCustomAlert("Failed to create user.", "Error");
+            }
+        });
+
+        window.renderUsersTable = function() {
+            const tbody = document.getElementById('users-table-body');
+            if (allUsers.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="4" class="p-6 text-center text-slate-500">No users found.</td></tr>`;
+                return;
+            }
+            tbody.innerHTML = allUsers.map(u => `
+                <tr class="hover:bg-slate-50 dark:hover:bg-deepblue-950/50 transition-colors">
+                    <td class="p-3.5 font-semibold text-slate-900 dark:text-white">${u.username}</td>
+                    <td class="p-3.5 font-mono text-sky-600 dark:text-sky-400 uppercase">${u.role}</td>
+                    <td class="p-3.5 text-center">
+                        <button onclick="resetUserPassword('${u.firestoreId}', '${u.username}')" class="bg-amber-600 hover:bg-amber-500 text-white px-3 py-1 rounded-lg text-[11px] transition shadow-sm">Reset</button>
+                    </td>
+                    <td class="p-3.5 text-center">
+                        ${u.username !== 'admin' ? `<button onclick="deleteUser('${u.firestoreId}', '${u.username}')" class="bg-red-600 hover:bg-red-500 text-white px-3 py-1 rounded-lg text-[11px] transition shadow-sm">Delete</button>` : `<span class="text-slate-400 text-[11px]">Protected</span>`}
+                    </td>
+                </tr>
+            `).join('');
+            gsap.fromTo('#users-table-body tr', { opacity: 0, y: 15 }, { opacity: 1, y: 0, stagger: 0.05, duration: 0.4, ease: "power2.out" });
+        }
+
+        window.resetUserPassword = async function(firestoreId, username) {
+            const newPass = await showCustomPrompt(`Enter new password for user "${username}":`, "Reset Password", "New password");
+            if (!newPass) return;
+            try {
+                await updateDoc(doc(db, "system_users", firestoreId), { password: newPass });
+                await showCustomAlert(`Password for "${username}" reset successfully!`, "Success");
+                loadUsers();
+            } catch (err) {
+                console.error("Error resetting password:", err);
+                await showCustomAlert("Failed to reset password.", "Error");
+            }
+        }
+
+        window.deleteUser = async function(firestoreId, username) {
+            const confirmed = await showCustomConfirm(`Are you sure you want to delete user "${username}"?`, "Confirm Deletion");
+            if (!confirmed) return;
+            try {
+                await deleteDoc(doc(db, "system_users", firestoreId));
+                await showCustomAlert("User deleted successfully.", "Success");
+                loadUsers();
+            } catch (err) {
+                console.error("Error deleting user:", err);
+                await showCustomAlert("Failed to delete user.", "Error");
+            }
+        }
+
+        // --- Real-time Announcement Ticker Sync ---
+        function setupAnnouncementListener() {
+            onSnapshot(settingsDocRef, (docSnap) => {
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    if (data && data.text) {
+                        const tickerEl = document.getElementById('live-announcement-ticker');
+                        if (tickerEl) tickerEl.innerText = data.text;
+                        const adminInput = document.getElementById('admin-announcement-input');
+                        if (adminInput && document.activeElement !== adminInput) {
+                            adminInput.value = data.text;
+                        }
+                    }
+                }
+            }, (err) => {
+                console.error("Error listening to announcement settings:", err);
+            });
+        }
+
+        window.updateAnnouncement = async function() {
+            if (!currentUser || currentUser.role !== 'admin') {
+                await showCustomAlert("Access denied: Administrator privileges required.", "Access Restricted");
+                return;
+            }
+            const text = document.getElementById('admin-announcement-input').value.trim();
+            if (!text) {
+                await showCustomAlert("Announcement text cannot be empty.", "Validation Error");
+                return;
+            }
+            try {
+                await setDoc(settingsDocRef, { text, updatedAt: new Date().toISOString() });
+                await showCustomAlert("Live announcement updated successfully! It is now scrolling across all active user screens.", "Announcement Updated");
+            } catch (err) {
+                console.error("Error updating announcement:", err);
+                await showCustomAlert("Failed to update announcement.", "Error");
+            }
+        }
+
+        function updateMaldivesClock() {
+            const now = new Date();
+            const utcTime = now.getTime() + (now.getTimezoneOffset() * 60000);
+            const maldivesTime = new Date(utcTime + (3600000 * 5));
+            const options = { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true };
+            document.getElementById('live-clock').innerText = "Maldives Time: " + maldivesTime.toLocaleString('en-US', options);
+        }
+        setInterval(updateMaldivesClock, 1000);
+        updateMaldivesClock();
+
+        const now = new Date();
+        const maldivesNow = new Date(now.getTime() + (now.getTimezoneOffset() * 60000) + (3600000 * 5));
+        document.getElementById('travel-date').valueAsDate = maldivesNow;
+
+        window.switchTab = async function(tabId) {
+            if (!currentUser) {
+                await showCustomAlert("Please log in first.", "Session Required");
+                return;
+            }
+
+            const role = currentUser.role;
+            if (role !== 'admin') {
+                if (tabId === 'admin') {
+                    await showCustomAlert("Access denied: Administrator privileges required.", "Access Restricted");
+                    return;
+                }
+                if (tabId === 'ticketing' && role !== 'hr' && role !== 'supervisor') {
+                    await showCustomAlert("Access denied: Only HR, Supervisors, and Admin can access Ticketing / Registration.", "Access Restricted");
+                    return;
+                }
+                if (tabId === 'hr' && role !== 'hr') {
+                    await showCustomAlert("Access denied: Only HR and Admin can access Records & Rosters.", "Access Restricted");
+                    return;
+                }
+                if (tabId === 'supervisor' && role !== 'supervisor') {
+                    await showCustomAlert("Access denied: Only Supervisor role can access this tab.", "Access Restricted");
+                    return;
+                }
+                if (tabId === 'hod' && role !== 'hod') {
+                    await showCustomAlert("Access denied: Only HOD role can access this tab.", "Access Restricted");
+                    return;
+                }
+            }
+
+            ['ticketing', 'supervisor', 'hod', 'hr', 'common-status', 'scanner', 'admin'].forEach(t => {
+                const el = document.getElementById('tab-' + t);
+                const btn = document.getElementById('btn-tab-' + t);
+                if (el) el.classList.add('hidden');
+                if (btn) btn.classList.remove('active');
+            });
+            const targetTab = document.getElementById('tab-' + tabId);
+            const targetBtn = document.getElementById('btn-tab-' + tabId);
+            if (targetTab) {
+                targetTab.classList.remove('hidden');
+                // Noomo digital storytelling entrance transition
+                gsap.fromTo(targetTab, { opacity: 0, y: 30, scale: 0.98 }, { opacity: 1, y: 0, scale: 1, duration: 0.7, ease: "power3.out" });
+            }
+            if (targetBtn) targetBtn.classList.add('active');
+
+            if (tabId === 'admin') {
+                loadUsers();
+            }
+        }
+
+        document.getElementById('ticket-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const name = document.getElementById('emp-name').value.trim();
+            const empId = document.getElementById('emp-id').value.trim();
+
+            // Final Validation Checks on Submit
+            const empIdRegex = /^\d{6}$/;
+            if (!empIdRegex.test(empId)) {
+                await showCustomAlert("Employee ID must be exactly 6 digits (e.g. 123456).", "Validation Error");
+                return;
+            }
+
+            const nameRegex = /^[A-Za-z\s]+$/;
+            if (!nameRegex.test(name)) {
+                await showCustomAlert("Employee Name can only contain letters and spaces.", "Validation Error");
+                return;
+            }
+
+            const dept = document.getElementById('emp-dept').value.trim() || 'General';
+            const travelDate = document.getElementById('travel-date').value;
+            const travelTime = document.getElementById('travel-time').value || '08:00';
+            const route = document.getElementById('route-dest').value;
+            const vessel = document.getElementById('vessel-name').value;
+            const passId = 'MKF-' + Math.floor(100000 + Math.random() * 900000);
+
+            const now = new Date();
+            const maldivesNow = new Date(now.getTime() + (now.getTimezoneOffset() * 60000) + (3600000 * 5));
+            const year = maldivesNow.getFullYear();
+            const month = String(maldivesNow.getMonth() + 1).padStart(2, '0');
+            const day = String(maldivesNow.getDate()).padStart(2, '0');
+            const hours = String(maldivesNow.getHours()).padStart(2, '0');
+            const minutes = String(maldivesNow.getMinutes()).padStart(2, '0');
+            const seconds = String(maldivesNow.getSeconds()).padStart(2, '0');
+            const dateTimeIssued = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+
+            const initialStatus = 'Pending Supervisor Approval';
+            const newPassData = {
+                passId, name, empId, dept, travelDate, travelTime, route, vessel, dateTimeIssued,
+                status: initialStatus,
+                supervisorRemark: '', hodRemark: '', hrRemark: '', deniedReason: '',
+                lastUpdated: new Date().toISOString()
+            };
+
+            try {
+                await addDoc(passesCollection, newPassData);
+                activePassDetails = newPassData;
+
+                document.getElementById('preview-pass-id').innerText = passId;
+                document.getElementById('preview-name').innerText = name;
+                document.getElementById('preview-empid').innerText = empId;
+                document.getElementById('preview-dept').innerText = dept;
+                document.getElementById('preview-vessel').innerText = vessel;
+                document.getElementById('preview-date').innerText = `${travelDate} ${travelTime}`;
+                document.getElementById('preview-route').innerText = route;
+                
+                const badge = document.getElementById('pass-status-badge');
+                badge.className = "text-[11px] bg-amber-500/10 text-amber-500 dark:text-amber-400 border border-amber-500/20 px-3 py-1 rounded-full font-medium whitespace-nowrap";
+                badge.innerText = initialStatus;
+                
+                document.getElementById('preview-approval-note').innerText = initialStatus;
+                
+                const qrcodeContainer = document.getElementById('qrcode');
+                qrcodeContainer.innerHTML = "";
+                currentQRCode = new QRCode(qrcodeContainer, {
+                    text: passId, width: 85, height: 85, colorDark: "#0b192c", colorLight: "#ffffff", correctLevel: QRCode.CorrectLevel.H
+                });
+                
+                const passActions = document.getElementById('pass-actions');
+                passActions.classList.remove('hidden');
+                gsap.fromTo(passActions, { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" });
+                gsap.fromTo('#printable-pass', { scale: 0.95, rotationX: 10 }, { scale: 1, rotationX: 0, duration: 0.8, ease: "back.out(1.7)" });
+
+                await showCustomAlert("Pass request submitted successfully! Awaiting Supervisor approval.", "Pass Created");
+                document.getElementById('ticket-form').reset();
+                document.getElementById('travel-date').valueAsDate = maldivesNow;
+                document.getElementById('travel-time').value = '08:00';
+            } catch (error) {
+                console.error("Error adding pass: ", error);
+                await showCustomAlert("Failed to save pass request to Firebase.", "Error");
+            }
+        });
+
+        window.downloadPassPNG = async function() {
+            if (!activePassDetails || activePassDetails.status !== 'Approved & Generated') {
+                await showCustomAlert("Pass must be fully verified and approved by HR before downloading.", "Action Restricted");
+                return;
+            }
+            const passElement = document.getElementById('printable-pass');
+            const filename = `${activePassDetails.name.replace(/[^a-zA-Z0-9]/g, '_')}_${activePassDetails.empId.replace(/[^a-zA-Z0-9]/g, '_')}.png`;
+            html2canvas(passElement, { scale: 2 }).then(canvas => {
+                const link = document.createElement('a');
+                link.download = filename;
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+            });
+        }
+
+        // --- Real-time Firestore Listener with Continuous Update-First Sorting ---
+        function setupRealtimeListener() {
+            onSnapshot(passesCollection, (querySnapshot) => {
+                allPasses = [];
+                querySnapshot.forEach((docSnap) => {
+                    allPasses.push({ firestoreId: docSnap.id, ...docSnap.data() });
+                });
+
+                // Continuously sort passes so that whichever pass was newly created OR most recently updated/changed comes 1st
+                allPasses.sort((a, b) => {
+                    const timeA = new Date(a.lastUpdated || a.dateTimeIssued).getTime();
+                    const timeB = new Date(b.lastUpdated || b.dateTimeIssued).getTime();
+                    return timeB - timeA;
+                });
+
+                // Automatically re-render all views in real-time
+                renderSupervisorTable();
+                renderHODTable();
+                renderHRTable();
+                renderCommonStatusTracker();
+                
+                if (activePassDetails) {
+                    const latestMatch = allPasses.find(p => p.passId === activePassDetails.passId);
+                    if (latestMatch) {
+                        activePassDetails.status = latestMatch.status;
+                        const badge = document.getElementById('pass-status-badge');
+                        badge.innerText = latestMatch.status;
+                        
+                        let badgeClass = "text-[11px] px-3 py-1 rounded-full font-medium whitespace-nowrap border ";
+                        if (latestMatch.status === 'Approved & Generated') {
+                            badgeClass += "bg-sky-500/10 text-sky-600 dark:text-sky-400 border-sky-500/20";
+                        } else if (latestMatch.status === 'Boarded') {
+                            badgeClass += "bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20";
+                        } else if (latestMatch.status.includes('Denied')) {
+                            badgeClass += "bg-red-500/10 text-red-600 dark:text-red-400 border-red-500/20";
+                        } else {
+                            badgeClass += "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20";
+                        }
+                        badge.className = badgeClass;
+                        document.getElementById('preview-approval-note').innerText = latestMatch.status;
+                    }
+                }
+            }, (error) => {
+                console.error("Error listening to real-time updates: ", error);
+            });
+        }
+
+        window.loadPassesFromFirebase = function() {
+            console.log("Real-time listener active.");
+        }
+
+        // --- Supervisor Actions ---
+        window.renderSupervisorTable = function() {
+            const pending = allPasses.filter(p => p.status === 'Pending Supervisor Approval');
+            const tbody = document.getElementById('supervisor-table-body');
+            if (!tbody) return;
+            if (pending.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" class="p-6 text-center text-slate-500 dark:text-slate-400">No pending supervisor approval requests.</td></tr>`;
+                return;
+            }
+            tbody.innerHTML = pending.map(p => `
+                <tr class="hover:bg-slate-50 dark:hover:bg-deepblue-950/50 transition-colors">
+                    <td class="p-3.5 font-mono font-bold text-amber-600 dark:text-amber-400">${p.passId}</td>
+                    <td class="p-3.5 font-semibold text-slate-900 dark:text-white">${p.name}</td>
+                    <td class="p-3.5 font-mono text-slate-600 dark:text-slate-300">${p.empId}</td>
+                    <td class="p-3.5 text-slate-600 dark:text-slate-300">${p.dept}</td>
+                    <td class="p-3.5 text-slate-700 dark:text-slate-300">
+                        <span class="font-semibold block">${p.vessel}</span>
+                        <span class="text-[11px] text-slate-500 dark:text-slate-400">${p.route}</span>
+                    </td>
+                    <td class="p-3.5 text-slate-700 dark:text-slate-300 font-mono">${p.travelDate} ${p.travelTime || '08:00'}</td>
+                    <td class="p-3.5 text-center flex items-center justify-center gap-2">
+                        <button onclick="supervisorApprove('${p.firestoreId}')" class="bg-sky-600 hover:bg-sky-500 text-white font-medium px-3 py-1.5 rounded-lg text-xs transition shadow-sm">Approve</button>
+                        <button onclick="supervisorDeny('${p.firestoreId}')" class="bg-red-600 hover:bg-red-500 text-white font-medium px-3 py-1.5 rounded-lg text-xs transition shadow-sm">Deny</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        window.supervisorApprove = async function(firestoreId) {
+            try {
+                await updateDoc(doc(db, "passes", firestoreId), { 
+                    status: 'Pending HOD Approval',
+                    lastUpdated: new Date().toISOString()
+                });
+            } catch (error) {
+                console.error(error);
+                await showCustomAlert("Failed to update status.", "Error");
+            }
+        }
+
+        window.supervisorDeny = async function(firestoreId) {
+            const reason = await showCustomPrompt("Please enter reason for denial by Supervisor:", "Denial Reason", "Reason...");
+            if (reason === null) return;
+            try {
+                await updateDoc(doc(db, "passes", firestoreId), { 
+                    status: 'Denied by Supervisor', 
+                    deniedReason: reason || 'No reason provided',
+                    lastUpdated: new Date().toISOString()
+                });
+            } catch (error) {
+                console.error(error);
+                await showCustomAlert("Failed to update status.", "Error");
+            }
+        }
+
+        // --- HOD Actions ---
+        window.renderHODTable = function() {
+            const pending = allPasses.filter(p => p.status === 'Pending HOD Approval');
+            const tbody = document.getElementById('hod-table-body');
+            if (!tbody) return;
+            if (pending.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" class="p-6 text-center text-slate-500 dark:text-slate-400">No pending HOD approval requests.</td></tr>`;
+                return;
+            }
+            tbody.innerHTML = pending.map(p => `
+                <tr class="hover:bg-slate-50 dark:hover:bg-deepblue-950/50 transition-colors">
+                    <td class="p-3.5 font-mono font-bold text-amber-600 dark:text-amber-400">${p.passId}</td>
+                    <td class="p-3.5 font-semibold text-slate-900 dark:text-white">${p.name}</td>
+                    <td class="p-3.5 font-mono text-slate-600 dark:text-slate-300">${p.empId}</td>
+                    <td class="p-3.5 text-slate-600 dark:text-slate-300">${p.dept}</td>
+                    <td class="p-3.5 text-slate-700 dark:text-slate-300">
+                        <span class="font-semibold block">${p.vessel}</span>
+                        <span class="text-[11px] text-slate-500 dark:text-slate-400">${p.route}</span>
+                    </td>
+                    <td class="p-3.5 text-slate-700 dark:text-slate-300 font-mono">${p.travelDate} ${p.travelTime || '08:00'}</td>
+                    <td class="p-3.5 text-center flex items-center justify-center gap-2">
+                        <button onclick="hodApprove('${p.firestoreId}')" class="bg-sky-600 hover:bg-sky-500 text-white font-medium px-3 py-1.5 rounded-lg text-xs transition shadow-sm">Approve</button>
+                        <button onclick="hodDeny('${p.firestoreId}')" class="bg-red-600 hover:bg-red-500 text-white font-medium px-3 py-1.5 rounded-lg text-xs transition shadow-sm">Deny</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        window.hodApprove = async function(firestoreId) {
+            try {
+                await updateDoc(doc(db, "passes", firestoreId), { 
+                    status: 'Pending HR Verification',
+                    lastUpdated: new Date().toISOString()
+                });
+            } catch (error) {
+                console.error(error);
+                await showCustomAlert("Failed to update status.", "Error");
+            }
+        }
+
+        window.hodDeny = async function(firestoreId) {
+            const reason = await showCustomPrompt("Please enter reason for denial by HOD:", "Denial Reason", "Reason...");
+            if (reason === null) return;
+            try {
+                await updateDoc(doc(db, "passes", firestoreId), { 
+                    status: 'Denied by HOD', 
+                    deniedReason: reason || 'No reason provided',
+                    lastUpdated: new Date().toISOString()
+                });
+            } catch (error) {
+                console.error(error);
+                await showCustomAlert("Failed to update status.", "Error");
+            }
+        }
+
+        // --- HR Actions & Records ---
+        window.renderHRTable = function() {
+            const vesselFilter = document.getElementById('filter-vessel')?.value || '';
+            const dateFilter = document.getElementById('filter-date')?.value || '';
+            const searchFilter = (document.getElementById('filter-search')?.value || '').toLowerCase();
+
+            const filtered = allPasses.filter(p => {
+                let matchVessel = !vesselFilter || p.vessel === vesselFilter;
+                let matchDate = !dateFilter || p.travelDate === dateFilter;
+                let matchSearch = !searchFilter || p.name.toLowerCase().includes(searchFilter) || p.empId.toLowerCase().includes(searchFilter) || p.passId.toLowerCase().includes(searchFilter);
+                return matchVessel && matchDate && matchSearch;
+            });
+
+            const tbody = document.getElementById('passes-table-body');
+            if (!tbody) return;
+            if (filtered.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="8" class="p-6 text-center text-slate-500 dark:text-slate-400">No ferry passes found.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = filtered.map(p => {
+                let badgeClass = 'bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800/60';
+                if (p.status === 'Approved & Generated') badgeClass = 'bg-sky-50 dark:bg-sky-950/60 text-sky-700 dark:text-sky-300 border border-sky-200 dark:border-sky-800/60';
+                if (p.status === 'Boarded') badgeClass = 'bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800/60';
+                if (p.status.includes('Denied')) badgeClass = 'bg-red-50 dark:bg-red-950/60 text-red-700 dark:text-red-300 border border-red-200 dark:border-red-800/60';
+
+                return `
+                    <tr class="hover:bg-slate-50 dark:hover:bg-deepblue-950/50 transition-colors">
+                        <td class="p-3.5 font-mono font-bold text-sky-600 dark:text-sky-400">${p.passId}</td>
+                        <td class="p-3.5 font-semibold text-slate-900 dark:text-white">${p.name}</td>
+                        <td class="p-3.5 font-mono text-slate-600 dark:text-slate-300">${p.empId}</td>
+                        <td class="p-3.5 text-slate-600 dark:text-slate-300">${p.dept}</td>
+                        <td class="p-3.5 text-slate-700 dark:text-slate-300">
+                            <span class="font-semibold block">${p.vessel}</span>
+                            <span class="text-[11px] text-slate-500 dark:text-slate-400">${p.route}</span>
+                        </td>
+                        <td class="p-3.5 text-slate-700 dark:text-slate-300 font-mono">${p.travelDate} ${p.travelTime || '08:00'}</td>
+                        <td class="p-3.5 text-slate-500 dark:text-slate-400 font-mono text-[11px]">${p.dateTimeIssued}</td>
+                        <td class="p-3.5 text-center flex flex-col gap-1.5 items-center justify-center">
+                            ${p.status === 'Pending HR Verification' ? `
+                                <div class="flex gap-1.5 w-full">
+                                    <button onclick="hrVerifyAndGenerate('${p.firestoreId}')" class="flex-1 bg-sky-600 hover:bg-sky-500 text-white font-medium px-2.5 py-1.5 rounded-lg text-[11px] transition shadow-sm">Verify</button>
+                                    <button onclick="hrDeny('${p.firestoreId}')" class="flex-1 bg-red-600 hover:bg-red-500 text-white font-medium px-2.5 py-1.5 rounded-lg text-[11px] transition shadow-sm">Deny</button>
+                                </div>
+                            ` : `
+                                <span class="px-3 py-1 rounded-full text-[11px] font-semibold ${badgeClass} mb-1 shadow-2xs" title="${p.deniedReason || ''}">
+                                    ${p.status}
+                                </span>
+                                ${p.status === 'Approved & Generated' || p.status === 'Boarded' ? `<button onclick="openHRPreviewModal('${p.firestoreId}')" class="bg-slate-800 dark:bg-deepblue-950 hover:bg-slate-700 dark:hover:bg-deepblue-800 text-white font-medium px-3 py-1 rounded-lg text-[11px] transition shadow-sm w-full border border-slate-700 dark:border-blue-900/60">Preview Pass</button>` : ''}
+                            `}
+                            <button onclick="deletePass('${p.firestoreId}', '${p.passId}')" class="bg-red-600 hover:bg-red-500 text-white font-medium px-3 py-1 rounded-lg text-[11px] transition shadow-sm w-full mt-1">Delete Pass</button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        window.hrVerifyAndGenerate = async function(firestoreId) {
+            try {
+                await updateDoc(doc(db, "passes", firestoreId), { 
+                    status: 'Approved & Generated',
+                    lastUpdated: new Date().toISOString()
+                });
+            } catch (error) {
+                console.error(error);
+                await showCustomAlert("Failed to update status.", "Error");
+            }
+        }
+
+        window.hrDeny = async function(firestoreId) {
+            const reason = await showCustomPrompt("Please enter reason for denial by HR:", "Denial Reason", "Reason...");
+            if (reason === null) return;
+            try {
+                await updateDoc(doc(db, "passes", firestoreId), { 
+                    status: 'Denied by HR', 
+                    deniedReason: reason || 'No reason provided',
+                    lastUpdated: new Date().toISOString()
+                });
+            } catch (error) {
+                console.error(error);
+                await showCustomAlert("Failed to update status.", "Error");
+            }
+        }
+
+        window.deletePass = async function(firestoreId, passId) {
+            const confirmed = await showCustomConfirm(`Are you sure you want to delete pass "${passId}"? This action cannot be undone.`, "Confirm Pass Deletion");
+            if (!confirmed) return;
+            try {
+                await deleteDoc(doc(db, "passes", firestoreId));
+            } catch (error) {
+                console.error("Error deleting pass:", error);
+                await showCustomAlert("Failed to delete pass from cloud records.", "Error");
+            }
+        }
+
+        // --- Apple-Inspired & Noomo Digital Storytelling 3D Capsule Common Status Tracker Renderer ---
+        window.renderCommonStatusTracker = function() {
+            const searchVal = (document.getElementById('common-status-search')?.value || '').toLowerCase();
+            const grid = document.getElementById('common-status-grid');
+            if (!grid) return;
+
+            const filtered = allPasses.filter(p => !searchVal || p.name.toLowerCase().includes(searchVal) || p.empId.toLowerCase().includes(searchVal) || p.passId.toLowerCase().includes(searchVal));
+            
+            if (filtered.length === 0) {
+                grid.innerHTML = `<div class="col-span-full py-16 text-center text-slate-400 text-xs">No employee pass records found matching your query.</div>`;
+                return;
+            }
+
+            const getStepProgress = (status) => {
+                if (status.includes('Denied')) return { step: 0, color: 'bg-red-500 shadow-lg shadow-red-500/50', text: 'Denied' };
+                if (status === 'Pending Supervisor Approval') return { step: 1, color: 'bg-amber-500 shadow-lg shadow-amber-500/50', text: 'Pending Supervisor' };
+                if (status === 'Pending HOD Approval') return { step: 2, color: 'bg-amber-500 shadow-lg shadow-amber-500/50', text: 'Pending HOD' };
+                if (status === 'Pending HR Verification') return { step: 3, color: 'bg-sky-500 shadow-lg shadow-sky-500/50', text: 'Pending HR' };
+                if (status === 'Approved & Generated') return { step: 4, color: 'bg-emerald-500 shadow-lg shadow-emerald-500/50', text: 'Approved & Ready' };
+                if (status === 'Boarded') return { step: 5, color: 'bg-blue-500 shadow-lg shadow-blue-500/50', text: 'Boarded' };
+                return { step: 1, color: 'bg-slate-500', text: status };
+            };
+
+            grid.innerHTML = filtered.map(p => {
+                const prog = getStepProgress(p.status);
+                const isDenied = p.status.includes('Denied');
+                const isBoarded = p.status === 'Boarded';
+                const percentage = isDenied ? 100 : Math.max(8, (prog.step / 5) * 100);
+
+                return `
+                    <div class="card-apple-3d bg-deepblue-900/80 backdrop-blur-xl border border-blue-500/30 rounded-[2.5rem] p-6 shadow-2xl relative overflow-hidden flex flex-col justify-between group">
+                        <div class="absolute -right-12 -bottom-12 w-32 h-32 bg-sky-500/10 rounded-full blur-2xl pointer-events-none group-hover:bg-sky-500/20 transition-all duration-500"></div>
+                        
+                        <div>
+                            <div class="flex justify-between items-start mb-4 border-b border-blue-900/50 pb-3">
+                                <div>
+                                    <span class="text-[10px] font-mono text-sky-300 font-semibold bg-deepblue-950 px-3 py-1 rounded-full border border-sky-800/80 shadow-inner">${p.passId}</span>
+                                    <h3 class="font-bold text-sm text-white tracking-tight mt-2.5">${p.name}</h3>
+                                    <p class="text-[11px] text-slate-400 font-mono mt-0.5">${p.empId} &bull; ${p.dept}</p>
+                                </div>
+                                <span class="px-3.5 py-1.5 rounded-full text-[10px] font-semibold tracking-wide uppercase shadow-md ${isDenied ? 'bg-red-950 text-red-400 border border-red-800/60' : isBoarded ? 'bg-blue-950 text-blue-300 border border-blue-800/60' : 'bg-amber-950 text-amber-400 border border-amber-800/60'}">
+                                    ${p.status}
+                                </span>
+                            </div>
+
+                            <div class="space-y-2 text-xs text-slate-300 mb-6">
+                                <p class="flex justify-between"><span class="text-slate-400 font-medium">Vessel:</span> <span class="text-white font-medium">${p.vessel}</span></p>
+                                <p class="flex justify-between"><span class="text-slate-400 font-medium">Route:</span> <span class="text-white text-right truncate max-w-[180px]">${p.route}</span></p>
+                                <p class="flex justify-between"><span class="text-slate-400 font-medium">Travel Date & Time:</span> <span class="font-mono text-sky-300">${p.travelDate} ${p.travelTime || '08:00'}</span></p>
+                                ${isDenied ? `<div class="text-red-400 mt-2 bg-red-950/70 p-3 rounded-2xl border border-red-900/60 text-[11px] shadow-inner"><strong class="font-semibold">Reason:</strong> ${p.deniedReason}</div>` : ''}
+                            </div>
+                        </div>
+
+                        <!-- Capsule Milestone Progress Bar with Floating Ferry Animation -->
+                        <div class="pt-4 border-t border-blue-900/50">
+                            <div class="flex justify-between items-center text-[10px] text-slate-400 mb-2.5 font-semibold uppercase tracking-wider">
+                                <span class="text-slate-400">Tracking <span class="inline-flex gap-0.5"><span class="tracking-dot-1">.</span><span class="tracking-dot-2">.</span><span class="tracking-dot-3">.</span></span></span>
+                                <span class="text-sky-300 font-mono bg-deepblue-950 px-2 py-0.5 rounded-md border border-sky-900/60">${prog.text}</span>
+                            </div>
+                            <div class="relative w-full bg-deepblue-950 h-3.5 rounded-full overflow-visible p-0.5 border border-sky-900/80 shadow-inner">
+                                <div class="${prog.color} h-full rounded-full transition-all duration-700 shadow-sm" style="width: ${percentage}%"></div>
+                                <!-- Floating Ferry Icon Animation -->
+                                <div class="absolute top-1/2 -translate-y-1/2 transition-all duration-700 animate-ferry-float" style="left: calc(${percentage}% - 16px);">
+                                    <div class="bg-sky-600 text-white p-1.5 rounded-full shadow-lg shadow-sky-500/70 flex items-center justify-center border border-sky-400/60 transform hover:scale-125 transition-transform">
+                                        <svg class="w-3 h-3 transform rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 5l7 7-7 7M5 5l7 7-7 7"></path></svg>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // --- Modal & Scanner Functions ---
+        window.openHRPreviewModal = function(firestoreId) {
+            const pass = allPasses.find(p => p.firestoreId === firestoreId);
+            if (!pass) return;
+            modalActivePass = pass;
+            document.getElementById('modal-preview-pass-id').innerText = pass.passId;
+            document.getElementById('modal-preview-name').innerText = pass.name;
+            document.getElementById('modal-preview-empid').innerText = pass.empId;
+            document.getElementById('modal-preview-dept').innerText = pass.dept;
+            document.getElementById('modal-preview-vessel').innerText = pass.vessel;
+            document.getElementById('modal-preview-date').innerText = `${pass.travelDate} ${pass.travelTime || '08:00'}`;
+            document.getElementById('modal-preview-route').innerText = pass.route;
+
+            const modalQrContainer = document.getElementById('modal-qrcode');
+            modalQrContainer.innerHTML = "";
+            new QRCode(modalQrContainer, {
+                text: pass.passId, width: 100, height: 100, colorDark: "#0b192c", colorLight: "#ffffff", correctLevel: QRCode.CorrectLevel.H
+            });
+            const modal = document.getElementById('hr-preview-modal');
+            modal.classList.remove('hidden');
+            gsap.fromTo(modal.firstElementChild, { scale: 0.85, opacity: 0, y: 30 }, { scale: 1, opacity: 1, y: 0, duration: 0.5, ease: "back.out(1.5)" });
+        }
+
+        window.closeHRPreviewModal = function() {
+            const modal = document.getElementById('hr-preview-modal');
+            gsap.to(modal.firstElementChild, { scale: 0.9, opacity: 0, duration: 0.3, onComplete: () => {
+                modal.classList.add('hidden');
+                modalActivePass = null;
+            }});
+        }
+
+        window.downloadModalPassPNG = function() {
+            if (!modalActivePass) return;
+            const passElement = document.getElementById('modal-printable-pass');
+            const filename = `${modalActivePass.name.replace(/[^a-zA-Z0-9]/g, '_')}_${modalActivePass.empId.replace(/[^a-zA-Z0-9]/g, '_')}.png`;
+            html2canvas(passElement, { scale: 2 }).then(canvas => {
+                const link = document.createElement('a');
+                link.download = filename;
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+            });
+        }
+
+        window.handleScan = async function(scannedCode) {
+            const queryVal = (scannedCode || document.getElementById('scanner-input').value).trim().toUpperCase();
+            const resultBox = document.getElementById('scan-result');
+            resultBox.classList.remove('hidden');
+
+            if (!queryVal) {
+                resultBox.innerHTML = `<p class="text-red-600 dark:text-red-400 font-medium text-xs">Please enter or scan a valid Pass ID.</p>`;
+                return;
+            }
+            document.getElementById('scanner-input').value = queryVal;
+
+            let foundPass = allPasses.find(p => p.passId.toUpperCase() === queryVal || p.empId.toUpperCase() === queryVal);
+            if (!foundPass) {
+                resultBox.innerHTML = `
+                    <div class="bg-red-50 dark:bg-red-950/60 border border-red-200 dark:border-red-800/60 rounded-2xl p-4 text-center">
+                        <h3 class="text-sm font-bold text-red-800 dark:text-red-300">Invalid Pass / Not Found</h3>
+                        <p class="text-xs text-red-600 dark:text-red-400 mt-1">Pass ID "${queryVal}" does not exist in the cloud registry.</p>
+                    </div>`;
+                gsap.fromTo(resultBox, { scale: 0.95, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.4, ease: "power2.out" });
+                return;
+            }
+
+            if (foundPass.status.includes('Denied')) {
+                resultBox.innerHTML = `
+                    <div class="bg-red-50 dark:bg-red-950/60 border border-red-200 dark:border-red-800/60 rounded-2xl p-4 text-center">
+                        <h3 class="text-sm font-bold text-red-800 dark:text-red-300">Pass Denied</h3>
+                        <p class="text-xs text-red-700 dark:text-red-300 mt-1">Status: <strong>${foundPass.status}</strong></p>
+                        <p class="text-xs text-red-600 dark:text-red-400 mt-1">Reason: ${foundPass.deniedReason}</p>
+                    </div>`;
+                gsap.fromTo(resultBox, { scale: 0.95, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.4, ease: "power2.out" });
+                return;
+            }
+
+            if (foundPass.status !== 'Approved & Generated' && foundPass.status !== 'Boarded') {
+                resultBox.innerHTML = `
+                    <div class="bg-amber-50 dark:bg-amber-950/60 border border-amber-200 dark:border-amber-800/60 rounded-2xl p-4 text-center">
+                        <h3 class="text-sm font-bold text-amber-800 dark:text-amber-300">Pass Not Fully Approved</h3>
+                        <p class="text-xs text-amber-700 dark:text-amber-300 mt-1">Current Status: <strong>${foundPass.status}</strong>. Pass must be fully verified and approved by HR before boarding.</p>
+                    </div>`;
+                gsap.fromTo(resultBox, { scale: 0.95, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.4, ease: "power2.out" });
+                return;
+            }
+
+            const isAlreadyBoarded = foundPass.status === 'Boarded';
+            resultBox.innerHTML = `
+                <div class="bg-white dark:bg-deepblue-900 border border-slate-200 dark:border-blue-900/60 rounded-2xl p-5 shadow-lg space-y-4">
+                    <div class="flex justify-between items-start border-b border-slate-100 dark:border-blue-900/40 pb-3">
+                        <div>
+                            <span class="text-[10px] font-mono text-slate-400">Pass ID: ${foundPass.passId}</span>
+                            <h3 class="text-sm font-bold text-slate-900 dark:text-white">${foundPass.name} (${foundPass.empId})</h3>
+                            <p class="text-xs text-slate-500 dark:text-slate-400">${foundPass.dept}</p>
+                        </div>
+                        <div>
+                            <span class="px-3 py-1 rounded-full text-[11px] font-semibold ${isAlreadyBoarded ? 'bg-amber-50 dark:bg-amber-950 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800' : 'bg-sky-50 dark:bg-sky-950 text-sky-700 dark:text-sky-300 border border-sky-200 dark:border-sky-800'}">${foundPass.status}</span>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4 text-xs">
+                        <div><span class="text-slate-400 block mb-0.5">Assigned Vessel</span><span class="font-semibold text-slate-800 dark:text-slate-200">${foundPass.vessel}</span></div>
+                        <div><span class="text-slate-400 block mb-0.5">Travel Date & Time</span><span class="font-semibold text-slate-800 dark:text-slate-200 font-mono">${foundPass.travelDate} ${foundPass.travelTime || '08:00'}</span></div>
+                        <div class="col-span-2"><span class="text-slate-400 block mb-0.5">Route</span><span class="font-semibold text-slate-800 dark:text-slate-200">${foundPass.route}</span></div>
+                    </div>
+                    <div class="pt-2 border-t border-slate-100 dark:border-blue-900/40 flex gap-3">
+                        ${isAlreadyBoarded ? 
+                            `<div class="w-full bg-amber-50 dark:bg-amber-950 text-amber-800 dark:text-amber-300 p-3 rounded-xl text-center text-xs font-semibold border border-amber-200 dark:border-amber-800">Passenger has already been verified and boarded.</div>` :
+                            `<button onclick="markAsBoarded('${foundPass.firestoreId}')" class="w-full bg-sky-600 hover:bg-sky-500 text-white font-medium py-3 rounded-xl transition text-xs shadow-md shadow-sky-600/20">Confirm & Check-in Passenger</button>`
+                        }
+                    </div>
+                </div>
+            `;
+            gsap.fromTo(resultBox, { scale: 0.95, opacity: 0, y: 20 }, { scale: 1, opacity: 1, y: 0, duration: 0.5, ease: "power3.out" });
+        }
+
+        window.scanQRFromFile = async function(event) {
+            if (event.target.files.length === 0) return;
+            const file = event.target.files[0];
+            const scanner = new Html5Qrcode("reader");
+            scanner.scanFile(file, true)
+                .then(decodedText => {
+                    scanner.clear();
+                    window.handleScan(decodedText);
+                })
+                .catch(async () => {
+                    await showCustomAlert("Could not detect a valid QR code in the image.", "QR Scan Error");
+                    scanner.clear();
+                });
+        }
+
+        window.markAsBoarded = async function(firestoreId) {
+            try {
+                await updateDoc(doc(db, "passes", firestoreId), { 
+                    status: 'Boarded',
+                    lastUpdated: new Date().toISOString()
+                });
+                await showCustomAlert("Passenger successfully checked-in and marked as Boarded!", "Boarding Confirmed");
+                const pass = allPasses.find(p => p.firestoreId === firestoreId);
+                if (pass) window.handleScan(pass.passId);
+            } catch (error) {
+                console.error(error);
+                await showCustomAlert("Failed to update status.", "Error");
+            }
+        }
+
+        window.exportToExcel = async function() {
+            if (allPasses.length === 0) {
+                await showCustomAlert("No pass records available to export.", "Export Notice");
+                return;
+            }
+            const dataToExport = allPasses.map(p => ({
+                "Pass ID": p.passId,
+                "Employee Name": p.name,
+                "Employee ID": p.empId,
+                "Department": p.dept,
+                "Route": p.route,
+                "Vessel": p.vessel,
+                "Travel Date": p.travelDate,
+                "Travel Time": p.travelTime || '08:00',
+                "Issued Time": p.dateTimeIssued,
+                "Status": p.status,
+                "Denial Reason": p.deniedReason || 'N/A'
+            }));
+
+            const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, "Ferry Passes");
+            XLSX.writeFile(workbook, "Mifco_Kooddoo_Ferry_Records.xlsx");
+        }
+
+        await initializeDefaultUsers();
+        await loadUsers();
+        setupRealtimeListener(); // Activates continuous live updates & dynamic sorting across all views
+        setupAnnouncementListener(); // Activates real-time scrolling announcement ticker
+        updateNetworkStatus();
+    </script>
+</body>
+</html>
