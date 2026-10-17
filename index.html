@@ -341,36 +341,52 @@
         <section id="tab-ticketing" class="space-y-6">
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
                 <div class="bg-white dark:bg-deepblue-900 rounded-3xl shadow-xl p-6 border border-slate-200 dark:border-blue-900/45 transition-all">
-                    <h2 class="text-base font-bold text-slate-900 dark:text-white mb-4 pb-3 border-b border-slate-100 dark:border-blue-900/3 flex items-center gap-2.5">
-                        <span class="bg-sky-50 dark:bg-sky-950/80 text-sky-600 dark:text-sky-400 text-xs px-2.5 py-1 rounded-lg font-semibold border border-sky-100 dark:border-sky-800/60">Step 1</span>
-                        Generate Ferry Pass
+                    <h2 class="text-base font-bold text-slate-900 dark:text-white mb-4 pb-3 border-b border-slate-100 dark:border-blue-900/3 flex items-center justify-between">
+                        <span class="flex items-center gap-2.5">
+                            <span class="bg-sky-50 dark:bg-sky-950/80 text-sky-600 dark:text-sky-400 text-xs px-2.5 py-1 rounded-lg font-semibold border border-sky-100 dark:border-sky-800/60">Step 1</span>
+                            Generate Ferry Pass
+                        </span>
+                        <span id="lookup-status-indicator" class="text-[10px] font-mono px-2.5 py-1 rounded-full bg-slate-100 dark:bg-deepblue-950 text-slate-400">Ready for Emp ID</span>
                     </h2>
                     <form id="ticket-form" class="space-y-4">
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
-                                <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">Employee Full Name * (Letters only)</label>
-                                <input type="text" id="emp-name" required placeholder="e.g. Mohamed Ahmed" class="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-deepblue-950 border border-slate-200 dark:border-blue-900/60 rounded-xl focus:ring-2 focus:ring-sky-500 focus:outline-none text-xs text-slate-900 dark:text-white">
+                                <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">Employee ID * (Type 6 digits for Auto-Fill)</label>
+                                <input type="text" id="emp-id" required maxlength="6" placeholder="e.g. 101758" class="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-deepblue-950 border border-slate-200 dark:border-blue-900/60 rounded-xl focus:ring-2 focus:ring-sky-500 focus:outline-none text-xs text-slate-900 dark:text-white font-mono">
                             </div>
                             <div>
-                                <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">Employee ID * (Max 6 digits)</label>
-                                <input type="text" id="emp-id" required maxlength="6" placeholder="e.g. 123456" class="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-deepblue-950 border border-slate-200 dark:border-blue-900/60 rounded-xl focus:ring-2 focus:ring-sky-500 focus:outline-none text-xs text-slate-900 dark:text-white font-mono">
+                                <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">Employee Full Name *</label>
+                                <input type="text" id="emp-name" required placeholder="e.g. Mohamed Ahmed" class="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-deepblue-950 border border-slate-200 dark:border-blue-900/60 rounded-xl focus:ring-2 focus:ring-sky-500 focus:outline-none text-xs text-slate-900 dark:text-white">
                             </div>
                         </div>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div>
+                                <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">Gender *</label>
+                                <select id="emp-gender" required class="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-deepblue-950 border border-slate-200 dark:border-blue-900/60 rounded-xl focus:ring-2 focus:ring-sky-500 focus:outline-none text-xs text-slate-900 dark:text-white">
+                                    <option value="Male">Male</option>
+                                    <option value="Female">Female</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">Designation</label>
+                                <input type="text" id="emp-designation" placeholder="e.g. Chief Engineer" class="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-deepblue-950 border border-slate-200 dark:border-blue-900/60 rounded-xl focus:ring-2 focus:ring-sky-500 focus:outline-none text-xs text-slate-900 dark:text-white">
+                            </div>
                             <div>
                                 <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">Department / Division</label>
                                 <input type="text" id="emp-dept" placeholder="e.g. Production" class="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-deepblue-950 border border-slate-200 dark:border-blue-900/60 rounded-xl focus:ring-2 focus:ring-sky-500 focus:outline-none text-xs text-slate-900 dark:text-white">
                             </div>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
                                 <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">Travel Date *</label>
                                 <input type="date" id="travel-date" required class="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-deepblue-950 border border-slate-200 dark:border-blue-900/60 rounded-xl focus:ring-2 focus:ring-sky-500 focus:outline-none text-xs text-slate-900 dark:text-white">
                             </div>
-                        </div>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
                                 <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">Travel Time *</label>
                                 <input type="time" id="travel-time" required value="08:00" class="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-deepblue-950 border border-slate-200 dark:border-blue-900/60 rounded-xl focus:ring-2 focus:ring-sky-500 focus:outline-none text-xs text-slate-900 dark:text-white font-mono">
                             </div>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
                                 <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">Destination Route *</label>
                                 <select id="route-dest" required class="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-deepblue-950 border border-slate-200 dark:border-blue-900/60 rounded-xl focus:ring-2 focus:ring-sky-500 focus:outline-none text-xs text-slate-900 dark:text-white">
@@ -380,8 +396,6 @@
                                     <option value="Kooddoo Jetty - Maamendhoo Route">Kooddoo Jetty ⇄ Maamendhoo</option>
                                 </select>
                             </div>
-                        </div>
-                        <div class="grid grid-cols-1 gap-4">
                             <div>
                                 <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">Assigned Vessel *</label>
                                 <select id="vessel-name" required class="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-deepblue-950 border border-slate-200 dark:border-blue-900/60 rounded-xl focus:ring-2 focus:ring-sky-500 focus:outline-none text-xs text-slate-900 dark:text-white">
@@ -662,8 +676,65 @@
                 <div class="flex justify-between items-center pb-4 border-b border-slate-100 dark:border-blue-900/36">
                     <div>
                         <h2 class="text-base font-bold text-slate-900 dark:text-white">Admin Dashboard</h2>
-                        <p class="text-xs text-slate-500 dark:text-slate-400">Manage system users, reset passwords, and publish live scrolling ticker announcements.</p>
+                        <p class="text-xs text-slate-500 dark:text-slate-400">Manage system users, reset passwords, publish announcements, and perform manual pass entries.</p>
                     </div>
+                </div>
+
+                <!-- NEW: Admin Manual Pass Entry Box -->
+                <div class="bg-slate-50 dark:bg-deepblue-950 p-5 rounded-2xl border border-slate-200 dark:border-blue-900/60 space-y-4 shadow-inner">
+                    <h3 class="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full bg-sky-500 animate-pulse"></span>
+                        Admin Manual Pass Entry (Direct Issuance)
+                    </h3>
+                    <form id="admin-manual-ticket-form" class="space-y-4">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">Employee ID *</label>
+                                <input type="text" id="admin-emp-id" required maxlength="6" placeholder="e.g. 101758" class="w-full px-3.5 py-2.5 bg-white dark:bg-deepblue-900 border border-slate-200 dark:border-blue-900/60 rounded-xl text-xs text-slate-900 dark:text-white font-mono">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">Employee Full Name *</label>
+                                <input type="text" id="admin-emp-name" required placeholder="e.g. Mohamed Ahmed" class="w-full px-3.5 py-2.5 bg-white dark:bg-deepblue-900 border border-slate-200 dark:border-blue-900/60 rounded-xl text-xs text-slate-900 dark:text-white">
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div>
+                                <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">Department</label>
+                                <input type="text" id="admin-emp-dept" placeholder="e.g. Production" class="w-full px-3.5 py-2.5 bg-white dark:bg-deepblue-900 border border-slate-200 dark:border-blue-900/60 rounded-xl text-xs text-slate-900 dark:text-white">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">Travel Date *</label>
+                                <input type="date" id="admin-travel-date" required class="w-full px-3.5 py-2.5 bg-white dark:bg-deepblue-900 border border-slate-200 dark:border-blue-900/60 rounded-xl text-xs text-slate-900 dark:text-white">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">Travel Time *</label>
+                                <input type="time" id="admin-travel-time" required value="08:00" class="w-full px-3.5 py-2.5 bg-white dark:bg-deepblue-900 border border-slate-200 dark:border-blue-900/60 rounded-xl text-xs text-slate-900 dark:text-white font-mono">
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">Destination Route *</label>
+                                <select id="admin-route-dest" required class="w-full px-3.5 py-2.5 bg-white dark:bg-deepblue-900 border border-slate-200 dark:border-blue-900/60 rounded-xl text-xs text-slate-900 dark:text-white">
+                                    <option value="Kooddoo Jetty - Vilingili Route">Kooddoo Jetty ⇄ Vilingili</option>
+                                    <option value="Kooddoo Jetty - Nilandhoo Route">Kooddoo Jetty ⇄ Nilandhoo</option>
+                                    <option value="Kooddoo Jetty - Gemanafushi Route">Kooddoo Jetty ⇄ Gemanafushi</option>
+                                    <option value="Kooddoo Jetty - Maamendhoo Route">Kooddoo Jetty ⇄ Maamendhoo</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">Assigned Vessel *</label>
+                                <select id="admin-vessel-name" required class="w-full px-3.5 py-2.5 bg-white dark:bg-deepblue-900 border border-slate-200 dark:border-blue-900/60 rounded-xl text-xs text-slate-900 dark:text-white">
+                                    <option value="MIFCO Express 01">MIFCO Express 01</option>
+                                    <option value="Kooddoo Carrier 03">Kooddoo Carrier 03</option>
+                                    <option value="Fishermen Ferry 05">Fishermen Ferry 05</option>
+                                    <option value="Atoll Voyager 02">Atoll Voyager 02</option>
+                                </select>
+                            </div>
+                        </div>
+                        <button type="submit" class="bg-sky-600 hover:bg-sky-500 text-white font-medium px-4 py-2.5 rounded-xl text-xs transition shadow-md shadow-sky-600/20">
+                            Manually Issue & Approve Pass
+                        </button>
+                    </form>
                 </div>
 
                 <!-- Announcement Management Box -->
@@ -845,9 +916,69 @@
         let activePassDetails = null;
         let modalActivePass = null;
 
+        // --- PASTE YOUR PUBLISHED GOOGLE SHEET CSV LINK HERE ---
+        const PUBLISHED_GOOGLE_SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRqjgwBdgLWkOxbJ76twZRAzcujzsgpZ-3vXSZP9-e9Uz1MNfXrLCF9U4-yxwoSxCY9kg8xCRKwek8z/pub?output=csv";
+
+        // Fetch Employee Data Live from Published Google Sheet
+        async function fetchFromGoogleSheet(empId) {
+            if (!PUBLISHED_GOOGLE_SHEET_CSV_URL || PUBLISHED_GOOGLE_SHEET_CSV_URL.includes("YOUR_PUBLISHED_CSV_LINK_HERE")) return null;
+            try {
+                const res = await fetch(PUBLISHED_GOOGLE_SHEET_CSV_URL);
+                const csvText = await res.text();
+                const lines = csvText.split('\n');
+                for (let line of lines) {
+                    const cols = line.split(',');
+                    if (cols[1] && cols[1].trim() === empId) {
+                        return {
+                            name: cols[2] ? cols[2].trim() : '',
+                            gender: cols[6] ? cols[6].trim() : 'Male',
+                            designation: cols[7] ? cols[7].trim() : '',
+                            section: cols[8] ? cols[8].trim() : ''
+                        };
+                    }
+                }
+            } catch (e) {
+                console.warn("Google Sheet fetch error:", e);
+            }
+            return null;
+        }
+
+        // Real-time Employee Auto-Fill Handler
+        async function autoFillStaffDetails(empId) {
+            const cleanId = empId.trim();
+            const statusIndicator = document.getElementById('lookup-status-indicator');
+            if (!cleanId) {
+                if (statusIndicator) {
+                    statusIndicator.innerText = "Ready for Emp ID";
+                    statusIndicator.className = "text-[10px] font-mono px-2.5 py-1 rounded-full bg-slate-100 dark:bg-deepblue-950 text-slate-400";
+                }
+                return;
+            }
+
+            const match = await fetchFromGoogleSheet(cleanId);
+
+            if (match) {
+                if (document.getElementById('emp-name')) document.getElementById('emp-name').value = match.name || '';
+                if (document.getElementById('emp-gender')) document.getElementById('emp-gender').value = match.gender || 'Male';
+                if (document.getElementById('emp-designation')) document.getElementById('emp-designation').value = match.designation || '';
+                if (document.getElementById('emp-dept')) document.getElementById('emp-dept').value = match.section || '';
+
+                if (statusIndicator) {
+                    statusIndicator.innerText = "Auto-filled from Google Sheet ✓";
+                    statusIndicator.className = "text-[10px] font-mono px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400";
+                }
+            } else {
+                if (statusIndicator) {
+                    statusIndicator.innerText = "Manual Entry Required";
+                    statusIndicator.className = "text-[10px] font-mono px-2.5 py-1 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400";
+                }
+            }
+        }
+
         // Real-time input validation handlers to prevent typing invalid characters
         document.getElementById('emp-id').addEventListener('input', function(e) {
             this.value = this.value.replace(/\D/g, '').slice(0, 6);
+            autoFillStaffDetails(this.value);
         });
 
         document.getElementById('emp-name').addEventListener('input', function(e) {
@@ -1107,12 +1238,59 @@
             }
         });
 
+        // NEW: Admin Manual Pass Entry Handler
+        document.getElementById('admin-manual-ticket-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            if (!currentUser || currentUser.role !== 'admin') {
+                await showCustomAlert("Access denied: Administrator privileges required.", "Access Restricted");
+                return;
+            }
+
+            const empId = document.getElementById('admin-emp-id').value.trim();
+            const name = document.getElementById('admin-emp-name').value.trim();
+            const dept = document.getElementById('admin-emp-dept').value.trim() || 'General';
+            const travelDate = document.getElementById('admin-travel-date').value;
+            const travelTime = document.getElementById('admin-travel-time').value || '08:00';
+            const route = document.getElementById('admin-route-dest').value;
+            const vessel = document.getElementById('admin-vessel-name').value;
+            const passId = 'MKF-' + Math.floor(100000 + Math.random() * 900000);
+
+            const now = new Date();
+            const maldivesNow = new Date(now.getTime() + (now.getTimezoneOffset() * 60000) + (3600000 * 5));
+            const year = maldivesNow.getFullYear();
+            const month = String(maldivesNow.getMonth() + 1).padStart(2, '0');
+            const day = String(maldivesNow.getDate()).padStart(2, '0');
+            const hours = String(maldivesNow.getHours()).padStart(2, '0');
+            const minutes = String(maldivesNow.getMinutes()).padStart(2, '0');
+            const seconds = String(maldivesNow.getSeconds()).padStart(2, '0');
+            const dateTimeIssued = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+
+            const manualPassData = {
+                passId, name, empId, dept, travelDate, travelTime, route, vessel, dateTimeIssued,
+                status: 'Approved & Generated',
+                supervisorRemark: 'Manually issued by Admin', hodRemark: 'Manually issued by Admin', hrRemark: 'Manually issued by Admin', deniedReason: '',
+                lastUpdated: new Date().toISOString()
+            };
+
+            try {
+                await addDoc(passesCollection, manualPassData);
+                await showCustomAlert(`Pass "${passId}" manually created and approved successfully for ${name}!`, "Manual Pass Issued");
+                document.getElementById('admin-manual-ticket-form').reset();
+                document.getElementById('admin-travel-date').valueAsDate = maldivesNow;
+                document.getElementById('admin-travel-time').value = '08:00';
+            } catch (error) {
+                console.error("Error creating manual pass:", error);
+                await showCustomAlert("Failed to save manual pass to cloud.", "Error");
+            }
+        });
+
         window.renderUsersTable = function() {
             const tbody = document.getElementById('users-table-body');
             if (allUsers.length === 0) {
                 tbody.innerHTML = `<tr><td colspan="4" class="p-6 text-center text-slate-500">No users found.</td></tr>`;
                 return;
             }
+            // FIX: Removed the admin account protection restriction so admin accounts can also be deleted and managed freely.
             tbody.innerHTML = allUsers.map(u => `
                 <tr class="hover:bg-slate-50 dark:hover:bg-deepblue-950/50 transition-colors">
                     <td class="p-3.5 font-semibold text-slate-900 dark:text-white">${u.username}</td>
@@ -1121,7 +1299,7 @@
                         <button onclick="resetUserPassword('${u.firestoreId}', '${u.username}')" class="bg-amber-600 hover:bg-amber-500 text-white px-3 py-1 rounded-lg text-[11px] transition shadow-sm">Reset</button>
                     </td>
                     <td class="p-3.5 text-center">
-                        ${u.username !== 'admin' ? `<button onclick="deleteUser('${u.firestoreId}', '${u.username}')" class="bg-red-600 hover:bg-red-500 text-white px-3 py-1 rounded-lg text-[11px] transition shadow-sm">Delete</button>` : `<span class="text-slate-400 text-[11px]">Protected</span>`}
+                        <button onclick="deleteUser('${u.firestoreId}', '${u.username}')" class="bg-red-600 hover:bg-red-500 text-white px-3 py-1 rounded-lg text-[11px] transition shadow-sm">Delete</button>
                     </td>
                 </tr>
             `).join('');
@@ -1205,6 +1383,7 @@
         const now = new Date();
         const maldivesNow = new Date(now.getTime() + (now.getTimezoneOffset() * 60000) + (3600000 * 5));
         document.getElementById('travel-date').valueAsDate = maldivesNow;
+        if (document.getElementById('admin-travel-date')) document.getElementById('admin-travel-date').valueAsDate = maldivesNow;
 
         window.switchTab = async function(tabId) {
             if (!currentUser) {
