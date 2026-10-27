@@ -2,7 +2,18 @@
 <html lang="en" class="dark">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Immersive Mobile & Notch Viewport Configuration -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    
+    <!-- Mobile Web App & Status Bar Integration for Android and Apple -->
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta id="meta-theme-color" name="theme-color" content="#040812">
+
+    <!-- PWA Manifest Link -->
+    <link rel="manifest" href="manifest.json">
+
     <title>MIFCO Kooddoo Ferry Ticketing & Verification</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -54,6 +65,12 @@
             -ms-overflow-style: none !important;  /* IE and Edge */
             scrollbar-width: none !important;  /* Firefox */
             overflow-y: scroll; /* Allows smooth scrolling without showing the scrollbar */
+            min-height: 100dvh;
+        }
+
+        /* Mobile Safe-Area Adjustments for Apple & Android notch bars */
+        header {
+            padding-top: max(0.875rem, env(safe-area-inset-top));
         }
 
         @media print {
@@ -325,7 +342,7 @@
             <button onclick="switchTab('common-status')" id="btn-tab-common-status" class="tab-btn px-4 py-3 text-xs font-medium text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white whitespace-nowrap transition-colors flex items-center gap-2">
                 Live Status Tracker
             </button>
-            <button onclick="switchTab('scanner')" id="btn-tab-scanner" class="tab-btn px-4 py-3 text-xs font-medium text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white whitespace-nowrap transition-colors flex items-center gap-2">
+            <button onclick="switchTab('scanner')" id="btn-tab-scanner" class="tab-btn px-4 py-3 text-xs font-medium text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white whitespace-nowrap transition-colors flex items-center gap-2 hidden">
                 Captain Scanner
             </button>
             <button onclick="switchTab('admin')" id="btn-tab-admin" class="tab-btn px-4 py-3 text-xs font-medium text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white whitespace-nowrap transition-colors flex items-center gap-2 hidden">
@@ -680,7 +697,7 @@
                     </div>
                 </div>
 
-                <!-- NEW: Admin Manual Pass Entry Box -->
+                <!-- Admin Manual Pass Entry Box -->
                 <div class="bg-slate-50 dark:bg-deepblue-950 p-5 rounded-2xl border border-slate-200 dark:border-blue-900/60 space-y-4 shadow-inner">
                     <h3 class="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider flex items-center gap-2">
                         <span class="w-2 h-2 rounded-full bg-sky-500 animate-pulse"></span>
@@ -888,6 +905,17 @@
         <p>MIFCO Kooddoo Fisheries Complex &copy; 2026. All rights reserved. Developed by Shahinth Jeewaratnam (KFC-IT)</p>
     </footer>
 
+    <!-- Service Worker Registration Script -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js')
+                    .then(reg => console.log('Service Worker registered!', reg))
+                    .catch(err => console.log('Service Worker registration failed:', err));
+            });
+        }
+    </script>
+
     <!-- Firebase SDK Imports (Modular CDN) -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
@@ -916,10 +944,8 @@
         let activePassDetails = null;
         let modalActivePass = null;
 
-        // --- PASTE YOUR PUBLISHED GOOGLE SHEET CSV LINK HERE ---
         const PUBLISHED_GOOGLE_SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRqjgwBdgLWkOxbJ76twZRAzcujzsgpZ-3vXSZP9-e9Uz1MNfXrLCF9U4-yxwoSxCY9kg8xCRKwek8z/pub?output=csv";
 
-        // Fetch Employee Data Live from Published Google Sheet
         async function fetchFromGoogleSheet(empId) {
             if (!PUBLISHED_GOOGLE_SHEET_CSV_URL || PUBLISHED_GOOGLE_SHEET_CSV_URL.includes("YOUR_PUBLISHED_CSV_LINK_HERE")) return null;
             try {
@@ -943,7 +969,6 @@
             return null;
         }
 
-        // Real-time Employee Auto-Fill Handler
         async function autoFillStaffDetails(empId) {
             const cleanId = empId.trim();
             const statusIndicator = document.getElementById('lookup-status-indicator');
@@ -975,7 +1000,6 @@
             }
         }
 
-        // Real-time input validation handlers to prevent typing invalid characters
         document.getElementById('emp-id').addEventListener('input', function(e) {
             this.value = this.value.replace(/\D/g, '').slice(0, 6);
             autoFillStaffDetails(this.value);
@@ -985,7 +1009,6 @@
             this.value = this.value.replace(/[^A-Za-z\s]/g, '');
         });
 
-        // Network Status Updater
         function updateNetworkStatus() {
             const badge = document.getElementById('network-status-badge');
             const dot = document.getElementById('network-dot');
@@ -1002,17 +1025,19 @@
         window.addEventListener('offline', updateNetworkStatus);
         setInterval(updateNetworkStatus, 3000);
 
-        // Theme Toggle Handler with Ocean Login Background Sync
         window.toggleTheme = function() {
             const htmlEl = document.documentElement;
             const loginModal = document.getElementById('login-modal');
+            const metaTheme = document.getElementById('meta-theme-color');
             const isDark = htmlEl.classList.contains('dark');
+
             if (isDark) {
                 htmlEl.classList.remove('dark');
                 if (loginModal) {
                     loginModal.classList.remove('ocean-bg-dark');
                     loginModal.classList.add('ocean-bg-light');
                 }
+                if (metaTheme) metaTheme.setAttribute('content', '#f0f9ff');
                 document.getElementById('theme-icon').innerText = '☀️';
                 document.getElementById('theme-text').innerText = 'Light';
                 localStorage.setItem('mifco_theme', 'light');
@@ -1022,21 +1047,24 @@
                     loginModal.classList.remove('ocean-bg-light');
                     loginModal.classList.add('ocean-bg-dark');
                 }
+                if (metaTheme) metaTheme.setAttribute('content', '#040812');
                 document.getElementById('theme-icon').innerText = '🌙';
                 document.getElementById('theme-text').innerText = 'Dark';
                 localStorage.setItem('mifco_theme', 'dark');
             }
         }
 
-        // Initialize Theme from Storage
         const savedTheme = localStorage.getItem('mifco_theme');
         const loginModal = document.getElementById('login-modal');
+        const metaTheme = document.getElementById('meta-theme-color');
+
         if (savedTheme === 'light') {
             document.documentElement.classList.remove('dark');
             if (loginModal) {
                 loginModal.classList.remove('ocean-bg-dark');
                 loginModal.classList.add('ocean-bg-light');
             }
+            if (metaTheme) metaTheme.setAttribute('content', '#f0f9ff');
             document.getElementById('theme-icon').innerText = '☀️';
             document.getElementById('theme-text').innerText = 'Light';
         } else {
@@ -1044,6 +1072,7 @@
                 loginModal.classList.remove('ocean-bg-light');
                 loginModal.classList.add('ocean-bg-dark');
             }
+            if (metaTheme) metaTheme.setAttribute('content', '#040812');
         }
 
         window.showCustomAlert = function(message, title = "System Notice") {
@@ -1184,8 +1213,14 @@
             document.getElementById('current-user-display').innerText = matched.username;
             document.getElementById('current-role-display').innerText = matched.role.toUpperCase();
             document.getElementById('user-session-box').classList.remove('hidden');
+
+            const scannerBtn = document.getElementById('btn-tab-scanner');
+            if (matched.role === 'admin' || matched.role === 'captain') {
+                scannerBtn.classList.remove('hidden');
+            } else {
+                scannerBtn.classList.add('hidden');
+            }
             
-            // Noomo-style cinematic login modal exit animation
             gsap.to('#login-modal', { opacity: 0, scale: 1.05, duration: 0.8, ease: "power3.inOut", onComplete: () => {
                 document.getElementById('login-modal').classList.add('hidden');
             }});
@@ -1212,6 +1247,7 @@
             currentUser = null;
             document.getElementById('user-session-box').classList.add('hidden');
             document.getElementById('login-password').value = '';
+            document.getElementById('btn-tab-scanner').classList.add('hidden');
             const modal = document.getElementById('login-modal');
             modal.classList.remove('hidden');
             gsap.fromTo(modal, { opacity: 0, scale: 0.95 }, { opacity: 1, scale: 1, duration: 0.6, ease: "power3.out" });
@@ -1238,7 +1274,6 @@
             }
         });
 
-        // NEW: Admin Manual Pass Entry Handler
         document.getElementById('admin-manual-ticket-form').addEventListener('submit', async function(e) {
             e.preventDefault();
             if (!currentUser || currentUser.role !== 'admin') {
@@ -1290,7 +1325,6 @@
                 tbody.innerHTML = `<tr><td colspan="4" class="p-6 text-center text-slate-500">No users found.</td></tr>`;
                 return;
             }
-            // FIX: Removed the admin account protection restriction so admin accounts can also be deleted and managed freely.
             tbody.innerHTML = allUsers.map(u => `
                 <tr class="hover:bg-slate-50 dark:hover:bg-deepblue-950/50 transition-colors">
                     <td class="p-3.5 font-semibold text-slate-900 dark:text-white">${u.username}</td>
@@ -1332,7 +1366,6 @@
             }
         }
 
-        // --- Real-time Announcement Ticker Sync ---
         function setupAnnouncementListener() {
             onSnapshot(settingsDocRef, (docSnap) => {
                 if (docSnap.exists()) {
@@ -1397,6 +1430,10 @@
                     await showCustomAlert("Access denied: Administrator privileges required.", "Access Restricted");
                     return;
                 }
+                if (tabId === 'scanner' && role !== 'captain') {
+                    await showCustomAlert("Access denied: Only Captain and Administrator can access Captain Scanner.", "Access Restricted");
+                    return;
+                }
                 if (tabId === 'ticketing' && role !== 'hr' && role !== 'supervisor') {
                     await showCustomAlert("Access denied: Only HR, Supervisors, and Admin can access Ticketing / Registration.", "Access Restricted");
                     return;
@@ -1425,7 +1462,6 @@
             const targetBtn = document.getElementById('btn-tab-' + tabId);
             if (targetTab) {
                 targetTab.classList.remove('hidden');
-                // Noomo digital storytelling entrance transition
                 gsap.fromTo(targetTab, { opacity: 0, y: 30, scale: 0.98 }, { opacity: 1, y: 0, scale: 1, duration: 0.7, ease: "power3.out" });
             }
             if (targetBtn) targetBtn.classList.add('active');
@@ -1440,7 +1476,6 @@
             const name = document.getElementById('emp-name').value.trim();
             const empId = document.getElementById('emp-id').value.trim();
 
-            // Final Validation Checks on Submit
             const empIdRegex = /^\d{6}$/;
             if (!empIdRegex.test(empId)) {
                 await showCustomAlert("Employee ID must be exactly 6 digits (e.g. 123456).", "Validation Error");
@@ -1532,7 +1567,6 @@
             });
         }
 
-        // --- Real-time Firestore Listener with Continuous Update-First Sorting ---
         function setupRealtimeListener() {
             onSnapshot(passesCollection, (querySnapshot) => {
                 allPasses = [];
@@ -1540,14 +1574,12 @@
                     allPasses.push({ firestoreId: docSnap.id, ...docSnap.data() });
                 });
 
-                // Continuously sort passes so that whichever pass was newly created OR most recently updated/changed comes 1st
                 allPasses.sort((a, b) => {
                     const timeA = new Date(a.lastUpdated || a.dateTimeIssued).getTime();
                     const timeB = new Date(b.lastUpdated || b.dateTimeIssued).getTime();
                     return timeB - timeA;
                 });
 
-                // Automatically re-render all views in real-time
                 renderSupervisorTable();
                 renderHODTable();
                 renderHRTable();
@@ -1583,7 +1615,6 @@
             console.log("Real-time listener active.");
         }
 
-        // --- Supervisor Actions ---
         window.renderSupervisorTable = function() {
             const pending = allPasses.filter(p => p.status === 'Pending Supervisor Approval');
             const tbody = document.getElementById('supervisor-table-body');
@@ -1638,7 +1669,6 @@
             }
         }
 
-        // --- HOD Actions ---
         window.renderHODTable = function() {
             const pending = allPasses.filter(p => p.status === 'Pending HOD Approval');
             const tbody = document.getElementById('hod-table-body');
@@ -1693,7 +1723,6 @@
             }
         }
 
-        // --- HR Actions & Records ---
         window.renderHRTable = function() {
             const vesselFilter = document.getElementById('filter-vessel')?.value || '';
             const dateFilter = document.getElementById('filter-date')?.value || '';
@@ -1788,7 +1817,6 @@
             }
         }
 
-        // --- Apple-Inspired & Noomo Digital Storytelling 3D Capsule Common Status Tracker Renderer ---
         window.renderCommonStatusTracker = function() {
             const searchVal = (document.getElementById('common-status-search')?.value || '').toLowerCase();
             const grid = document.getElementById('common-status-grid');
@@ -1841,7 +1869,6 @@
                             </div>
                         </div>
 
-                        <!-- Capsule Milestone Progress Bar with Floating Ferry Animation -->
                         <div class="pt-4 border-t border-blue-900/50">
                             <div class="flex justify-between items-center text-[10px] text-slate-400 mb-2.5 font-semibold uppercase tracking-wider">
                                 <span class="text-slate-400">Tracking <span class="inline-flex gap-0.5"><span class="tracking-dot-1">.</span><span class="tracking-dot-2">.</span><span class="tracking-dot-3">.</span></span></span>
@@ -1849,7 +1876,6 @@
                             </div>
                             <div class="relative w-full bg-deepblue-950 h-3.5 rounded-full overflow-visible p-0.5 border border-sky-900/80 shadow-inner">
                                 <div class="${prog.color} h-full rounded-full transition-all duration-700 shadow-sm" style="width: ${percentage}%"></div>
-                                <!-- Floating Ferry Icon Animation -->
                                 <div class="absolute top-1/2 -translate-y-1/2 transition-all duration-700 animate-ferry-float" style="left: calc(${percentage}% - 16px);">
                                     <div class="bg-sky-600 text-white p-1.5 rounded-full shadow-lg shadow-sky-500/70 flex items-center justify-center border border-sky-400/60 transform hover:scale-125 transition-transform">
                                         <svg class="w-3 h-3 transform rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 5l7 7-7 7M5 5l7 7-7 7"></path></svg>
@@ -1862,7 +1888,6 @@
             }).join('');
         }
 
-        // --- Modal & Scanner Functions ---
         window.openHRPreviewModal = function(firestoreId) {
             const pass = allPasses.find(p => p.firestoreId === firestoreId);
             if (!pass) return;
@@ -2034,8 +2059,8 @@
 
         await initializeDefaultUsers();
         await loadUsers();
-        setupRealtimeListener(); // Activates continuous live updates & dynamic sorting across all views
-        setupAnnouncementListener(); // Activates real-time scrolling announcement ticker
+        setupRealtimeListener();
+        setupAnnouncementListener();
         updateNetworkStatus();
     </script>
 </body>
