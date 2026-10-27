@@ -11,7 +11,7 @@ This system can
 4. Role Based Accessing System (RBAS)
 5. Live Notice Board (Staff/Ferry shootouts)
 6. Live user travel pass tracking
-7. Cloud Based data retrieving system (User data will be fetched automatically from cloud when the admin/supervisor/Staff  try to apple from Issue pass section)
+7. Cloud Based data retrieving system (User data will be fetched automatically from cloud when the admin/supervisor/Staff  try to apply from Issue pass section)
 8. Secured by Google Firebase/Firestore (Powered by Google PLC)
 9. Best user experience to use from both PC/Mobile Devices
 10. 
