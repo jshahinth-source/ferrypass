@@ -78,6 +78,7 @@
 </head>
 <body class="bg-slate-50 dark:bg-deepblue-950 text-slate-900 dark:text-slate-100 min-h-screen flex flex-col font-sans transition-colors duration-500 overflow-x-hidden">
 
+    <!-- Login Modal & 3D Loader Overlay -->
     <div id="login-modal" class="fixed inset-0 ocean-bg-dark dark:ocean-bg-dark z-50 flex items-center justify-center p-4 backdrop-blur-3xl transition-all duration-700">
         <div class="absolute inset-0 overflow-hidden pointer-events-none">
             <div class="absolute -top-40 -left-40 w-[500px] h-[500px] bg-sky-400/20 rounded-full blur-[100px] caustics-light"></div>
@@ -86,14 +87,27 @@
             <div class="absolute bottom-0 left-0 right-0 h-80 opacity-30 water-wave-2 rounded-t-[100%] blur-2xl transform translate-y-10"></div>
         </div>
 
+        <!-- 3D Login Loading Screen Overlay (Hidden by default) -->
+        <div id="login-loader-overlay" class="absolute inset-0 bg-deepblue-950/90 backdrop-blur-2xl z-20 flex flex-col items-center justify-center hidden opacity-0 transition-opacity duration-500">
+            <div class="boat-3d-motion p-6 rounded-3xl bg-gradient-to-tr from-sky-500 via-blue-600 to-indigo-600 text-white mb-6 shadow-[0_20px_50px_rgba(14,165,233,0.6)] border border-sky-300/50 relative">
+                <div class="absolute inset-0 rounded-3xl border border-white/60 animate-ping pointer-events-none"></div>
+                <svg class="w-12 h-12 drop-shadow-xl" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
+            </div>
+            <h3 class="text-lg font-bold text-white tracking-widest uppercase mb-1">Authenticating Secure Session</h3>
+            <p class="text-xs text-sky-400 font-mono tracking-wider">Establishing connection to Cloud Server...</p>
+            <div class="w-48 h-1.5 bg-deepblue-900 rounded-full mt-6 overflow-hidden border border-sky-500/30">
+                <div class="h-full bg-gradient-to-r from-sky-400 to-blue-600 animate-pulse w-3/4 rounded-full"></div>
+            </div>
+        </div>
+
         <div class="bg-white/80 dark:bg-deepblue-900/85 border border-slate-200/60 dark:border-sky-500/30 rounded-[2.5rem] shadow-[0_25px_70px_rgba(2,132,199,0.35)] max-w-md w-full p-8 md:p-10 relative backdrop-blur-2xl transform transition-all overflow-hidden perspective-container">
             <div class="text-center mb-6 relative z-10">
                 <div class="boat-3d-motion inline-flex p-4 rounded-3xl bg-gradient-to-tr from-sky-500 via-blue-600 to-indigo-600 text-white mb-4 shadow-[0_15px_35px_rgba(14,165,233,0.45)] border border-sky-300/40 relative">
                     <div class="absolute inset-0 rounded-3xl border border-white/40 animate-pulse pointer-events-none"></div>
                     <svg class="w-9 h-9 drop-shadow-md" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
                 </div>
-                <h2 class="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">MIFCO KFC FERRY PASS</h2>
-                <p class="text-xs text-sky-600 dark:text-sky-300 font-medium tracking-wider mt-1 uppercase">STAFF Transport & Navigation Suite</p>
+                <h2 class="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">KFC FERRY BORDING PASS</h2>
+                <p class="text-xs text-sky-600 dark:text-sky-300 font-medium tracking-wider mt-1 uppercase">MIFCO</p>
             </div>
 
             <form id="login-form" class="space-y-4 relative z-10">
@@ -110,18 +124,8 @@
                 </button>
             </form>
 
-            <div class="mt-6 pt-4 border-t border-slate-200 dark:border-blue-900/60 text-[11px] text-slate-600 dark:text-slate-300 bg-slate-100/80 dark:bg-deepblue-950/70 p-4 rounded-2xl space-y-1 relative z-10 border border-slate-200/80 dark:border-sky-500/20 shadow-inner">
-                <p class="font-bold text-sky-600 dark:text-sky-300 mb-1 flex items-center gap-1.5">
-                    <span class="w-2 h-2 rounded-full bg-sky-500 animate-pulse"></span>
-                    Demo Credentials:
-                </p>
-                <div class="grid grid-cols-2 gap-1 pt-1">
-                    <p>Admin: <code class="bg-white dark:bg-deepblue-900 px-1.5 py-0.5 rounded text-sky-600 dark:text-sky-300 font-mono">admin@123</code></p>
-                    <p>HR: <code class="bg-white dark:bg-deepblue-900 px-1.5 py-0.5 rounded text-sky-600 dark:text-sky-300 font-mono">hr@123</code></p>
-                    <p>Supervisor: <code class="bg-white dark:bg-deepblue-900 px-1.5 py-0.5 rounded text-sky-600 dark:text-sky-300 font-mono">sup@123</code></p>
-                    <p>HOD: <code class="bg-white dark:bg-deepblue-900 px-1.5 py-0.5 rounded text-sky-600 dark:text-sky-300 font-mono">hod@123</code></p>
-                    <p class="col-span-2">Password (all): <code class="bg-white dark:bg-deepblue-900 px-1.5 py-0.5 rounded text-sky-600 dark:text-sky-300 font-mono">Welcome@123</code></p>
-                </div>
+            <div class="mt-6 pt-4 border-t border-slate-200/50 dark:border-blue-900/40 text-center relative z-10">
+                <p class="text-[11px] font-medium text-slate-500 dark:text-slate-400 tracking-wide">Kooddoo Fisheries Complex &copy; 2026. All rights reserved</p>
             </div>
         </div>
     </div>
@@ -133,7 +137,7 @@
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
                 </div>
                 <div>
-                    <h1 class="text-base font-bold tracking-tight text-slate-900 dark:text-white">MIFCO KOODDOO FERRY PASS SYSTEM</h1>
+                    <h1 class="text-base font-bold tracking-tight text-sky-600 dark:text-sky-400">MIFCO KOODDOO FERRY PASS SYSTEM</h1>
                     <p class="text-[11px] text-slate-500 dark:text-slate-400">Marine Transport Unit &bull; Secure Cloud Ops</p>
                 </div>
             </div>
@@ -391,7 +395,7 @@
                     </div>
                     <div class="flex flex-wrap gap-2 w-full md:w-auto">
                         <button onclick="exportToExcel()" class="bg-sky-600 hover:bg-sky-500 text-white text-xs font-medium px-4 py-2 rounded-xl transition shadow-md shadow-sky-600/20">Export to Excel (.xlsx)</button>
-                        <button onclick="loadPassesFromFirebase()" class="bg-slate-100 dark:bg-deepblue-950 hover:bg-slate-200 dark:hover:bg-deepblue-800 text-slate-700 dark:text-slate-300 text-xs font-medium px-3.5 py-2 rounded-xl transition border border-slate-200 dark:border-blue-900/60">Refresh</button>
+                        <button onclick="refreshHRTable()" class="bg-slate-100 dark:bg-deepblue-950 hover:bg-slate-200 dark:hover:bg-deepblue-800 text-slate-700 dark:text-slate-300 text-xs font-medium px-3.5 py-2 rounded-xl transition border border-slate-200 dark:border-blue-900/60">Refresh</button>
                     </div>
                 </div>
 
@@ -680,8 +684,9 @@
         </div>
     </div>
 
-    <footer class="bg-white/80 dark:bg-deepblue-950/80 border-t border-slate-200 dark:border-blue-900/40 text-slate-500 dark:text-slate-400 mt-auto py-4 text-center text-xs backdrop-blur-md">
-        <p>MIFCO Kooddoo Fisheries Complex &copy; 2026. All rights reserved. Developed by Shahinth Jeewaratnam (KFC-IT)</p>
+    <!-- Professional Copyright Footer -->
+    <footer class="bg-white/80 dark:bg-deepblue-950/80 border-t border-slate-200 dark:border-blue-900/40 text-slate-600 dark:text-slate-400 mt-auto py-5 text-center text-xs backdrop-blur-md">
+        <p class="font-medium tracking-wide">MIFCO Kooddoo Fisheries Complex &copy; 2026. All rights reserved. &bull; Developed by <span class="text-sky-600 dark:text-sky-400 font-semibold">Shahinth Jeewaratnam</span> (KFC-IT)</p>
     </footer>
 
     <script type="module">
@@ -934,21 +939,33 @@
                 return;
             }
 
-            currentUser = { username: matched.username, role: matched.role };
-            document.getElementById('current-user-display').innerText = matched.username;
-            document.getElementById('current-role-display').innerText = matched.role.toUpperCase();
-            document.getElementById('user-session-box').classList.remove('hidden');
+            // Show 3D Animated Loading Screen
+            const loaderOverlay = document.getElementById('login-loader-overlay');
+            loaderOverlay.classList.remove('hidden');
+            gsap.to(loaderOverlay, { opacity: 1, duration: 0.4 });
 
-            const scannerBtn = document.getElementById('btn-tab-scanner');
-            if (matched.role === 'admin' || matched.role === 'captain') { scannerBtn.classList.remove('hidden'); } else { scannerBtn.classList.add('hidden'); }
-            
-            gsap.to('#login-modal', { opacity: 0, scale: 1.05, duration: 0.8, ease: "power3.inOut", onComplete: () => { document.getElementById('login-modal').classList.add('hidden'); }});
+            // Simulate loading delay for the 3D animated experience
+            setTimeout(async () => {
+                currentUser = { username: matched.username, role: matched.role };
+                document.getElementById('current-user-display').innerText = matched.username;
+                document.getElementById('current-role-display').innerText = matched.role.toUpperCase();
+                document.getElementById('user-session-box').classList.remove('hidden');
 
-            if (matched.role === 'admin') { document.getElementById('btn-tab-admin').classList.remove('hidden'); switchTab('admin'); }
-            else if (matched.role === 'hr') { document.getElementById('btn-tab-admin').classList.add('hidden'); switchTab('ticketing'); }
-            else if (matched.role === 'supervisor') { document.getElementById('btn-tab-admin').classList.add('hidden'); switchTab('supervisor'); }
-            else if (matched.role === 'hod') { document.getElementById('btn-tab-admin').classList.add('hidden'); switchTab('hod'); }
-            else if (matched.role === 'captain') { document.getElementById('btn-tab-admin').classList.add('hidden'); switchTab('scanner'); }
+                const scannerBtn = document.getElementById('btn-tab-scanner');
+                if (matched.role === 'admin' || matched.role === 'captain') { scannerBtn.classList.remove('hidden'); } else { scannerBtn.classList.add('hidden'); }
+                
+                gsap.to('#login-modal', { opacity: 0, scale: 1.05, duration: 0.8, ease: "power3.inOut", onComplete: () => { 
+                    document.getElementById('login-modal').classList.add('hidden');
+                    loaderOverlay.classList.add('hidden');
+                    loaderOverlay.style.opacity = '0';
+                }});
+
+                if (matched.role === 'admin') { document.getElementById('btn-tab-admin').classList.remove('hidden'); switchTab('admin'); }
+                else if (matched.role === 'hr') { document.getElementById('btn-tab-admin').classList.add('hidden'); switchTab('ticketing'); }
+                else if (matched.role === 'supervisor') { document.getElementById('btn-tab-admin').classList.add('hidden'); switchTab('supervisor'); }
+                else if (matched.role === 'hod') { document.getElementById('btn-tab-admin').classList.add('hidden'); switchTab('hod'); }
+                else if (matched.role === 'captain') { document.getElementById('btn-tab-admin').classList.add('hidden'); switchTab('scanner'); }
+            }, 1200);
         });
 
         window.logoutUser = function() {
@@ -1229,6 +1246,13 @@
         }
 
         window.loadPassesFromFirebase = function() { console.log("Real-time listener active."); }
+
+        window.refreshHRTable = function() {
+            if (document.getElementById('filter-vessel')) document.getElementById('filter-vessel').value = "";
+            if (document.getElementById('filter-date')) document.getElementById('filter-date').value = "";
+            if (document.getElementById('filter-search')) document.getElementById('filter-search').value = "";
+            renderHRTable();
+        }
 
         window.renderSupervisorTable = function() {
             const pending = allPasses.filter(p => p.status === 'Pending Supervisor Approval');
