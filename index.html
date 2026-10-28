@@ -8,8 +8,8 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta id="meta-theme-color" name="theme-color" content="#040812">
     
-    <!-- Embedded Manifest via Data URI (No separate json file needed) -->
-    <link rel="manifest" href='data:application/manifest+json;charset=utf-8,%7B%22name%22%3A%22MIFCO%20Kooddoo%20Ferry%20Pass%20System%22%2C%22short_name%22%3A%22MIFCO%20Ferry%22%2C%22start_url%22%3A%22.%2Findex.html%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%23040812%22%2C%22theme_color%22%3A%22%23040812%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22data%3Aimage%2Fsvg%2Bxml%2C%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%20192%20192%27%3E%3Crect%20width%3D%27100%25%27%20height%3D%27100%25%27%20fill%3D%27%23040812%27%2F%3E%3Ctext%20x%3D%2750%25%27%20y%3D%2755%25%27%20font-size%3D%27100%27%20text-anchor%3D%27middle%27%20dominant-baseline%3D%27middle%27%3E%F0%9F%9A%A2%3C%2Ftext%3E%3C%2Fsvg%3E%22%2C%22sizes%22%3A%22192x192%22%2C%22type%22%3A%22image%2Fsvg%2Bxml%22%7D%5D%7D'>
+    <!-- Embedded Manifest via Data URI -->
+    <link rel="manifest" href='data:application/manifest+json;charset=utf-8,%7B%22name%22%3A%22MIFCO%20Kooddoo%20Ferry%20Pass%20System%22%2C%22short_name%22%3A%22MIFCO%20Ferry%22%2C%22start_url%22%3A%22.%2Findex.html%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%23040812%22%2C%22theme_color%22%3A%22%23040812%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22data%3Aimage%2Fsvg%2Fxml%2C%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%20192%20192%27%3E%3Crect%20width%3D%27100%25%27%20height%3D%27100%25%27%20fill%3D%27%23040812%27%2F%3E%3Ctext%20x%3D%2750%25%27%20y%3D%2755%25%27%20font-size%3D%27100%27%20text-anchor%3D%27middle%27%20dominant-baseline%3D%27middle%27%3E%F0%9F%9A%A2%3C%2Ftext%3E%3C%2Fsvg%3E%22%2C%22sizes%22%3A%22192x192%22%2C%22type%22%3A%22image%2Fsvg%2Fxml%22%7D%5D%7D'>
 
     <title>MIFCO Kooddoo Ferry Ticketing & Verification</title>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -38,7 +38,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <style>
         ::-webkit-scrollbar { display: none !important; width: 0 !important; height: 0 !important; }
-        html, body { -ms-overflow-style: none !important; scrollbar-width: none !important; overflow-y: scroll; min-height: 100dvh; }
+        html, body { -ms-overflow-style: none !important; scrollbar-width: none !important; overflow-y: auto; min-height: 100dvh; }
+        body.login-locked { overflow: hidden !important; touch-action: none !important; }
         header { padding-top: max(0.875rem, env(safe-area-inset-top)); }
         @media print {
             body * { visibility: hidden; }
@@ -74,12 +75,19 @@
         .water-wave-2 { background: linear-gradient(90deg, rgba(2, 132, 199, 0.2), rgba(3, 105, 161, 0.4), rgba(7, 89, 133, 0.2)); animation: waveLayerMove2 11s ease-in-out infinite; }
         .boat-3d-motion { transform-style: preserve-3d; animation: boatFloating3D 4s ease-in-out infinite; }
         .caustics-light { animation: causticsGlow 6s ease-in-out infinite; }
+        
+        /* 3D Offline Modal Custom Animations */
+        @keyframes offlinePulse3D {
+            0%, 100% { transform: scale(1) rotate(0deg); }
+            50% { transform: scale(1.08) rotate(-3deg); }
+        }
+        .animate-offline-3d { animation: offlinePulse3D 2.5s ease-in-out infinite; }
     </style>
 </head>
-<body class="bg-slate-50 dark:bg-deepblue-950 text-slate-900 dark:text-slate-100 min-h-screen flex flex-col font-sans transition-colors duration-500 overflow-x-hidden">
+<body class="bg-slate-50 dark:bg-deepblue-950 text-slate-900 dark:text-slate-100 min-h-screen flex flex-col font-sans transition-colors duration-500 overflow-x-hidden login-locked">
 
     <!-- Login Modal & 3D Loader Overlay -->
-    <div id="login-modal" class="fixed inset-0 ocean-bg-dark dark:ocean-bg-dark z-50 flex items-center justify-center p-4 backdrop-blur-3xl transition-all duration-700">
+    <div id="login-modal" class="fixed inset-0 ocean-bg-dark dark:ocean-bg-dark z-50 flex items-center justify-center p-4 backdrop-blur-3xl transition-all duration-700 overflow-hidden touch-none select-none">
         <div class="absolute inset-0 overflow-hidden pointer-events-none">
             <div class="absolute -top-40 -left-40 w-[500px] h-[500px] bg-sky-400/20 rounded-full blur-[100px] caustics-light"></div>
             <div class="absolute -bottom-40 -right-40 w-[500px] h-[500px] bg-blue-500/20 rounded-full blur-[100px] caustics-light" style="animation-delay: -3s;"></div>
@@ -88,16 +96,17 @@
         </div>
 
         <!-- 3D Login Loading Screen Overlay (Hidden by default) -->
-        <div id="login-loader-overlay" class="absolute inset-0 bg-deepblue-950/90 backdrop-blur-2xl z-20 flex flex-col items-center justify-center hidden opacity-0 transition-opacity duration-500">
+        <div id="login-loader-overlay" class="absolute inset-0 bg-deepblue-950/95 backdrop-blur-2xl z-20 flex flex-col items-center justify-center hidden opacity-0 transition-opacity duration-500">
             <div class="boat-3d-motion p-6 rounded-3xl bg-gradient-to-tr from-sky-500 via-blue-600 to-indigo-600 text-white mb-6 shadow-[0_20px_50px_rgba(14,165,233,0.6)] border border-sky-300/50 relative">
                 <div class="absolute inset-0 rounded-3xl border border-white/60 animate-ping pointer-events-none"></div>
                 <svg class="w-12 h-12 drop-shadow-xl" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
             </div>
             <h3 class="text-lg font-bold text-white tracking-widest uppercase mb-1">Authenticating Secure Session</h3>
-            <p class="text-xs text-sky-400 font-mono tracking-wider">Establishing connection to Cloud Server...</p>
-            <div class="w-48 h-1.5 bg-deepblue-900 rounded-full mt-6 overflow-hidden border border-sky-500/30">
-                <div class="h-full bg-gradient-to-r from-sky-400 to-blue-600 animate-pulse w-3/4 rounded-full"></div>
+            <p class="text-xs text-sky-400 font-mono tracking-wider mb-6">Connecting Please Wait...</p>
+            <div class="w-64 h-2 bg-deepblue-900 rounded-full overflow-hidden border border-sky-500/30 p-0.5 shadow-inner">
+                <div id="login-progress-bar" class="h-full bg-gradient-to-r from-sky-400 via-blue-500 to-indigo-500 rounded-full w-0 transition-all duration-100 shadow-[0_0_15px_rgba(14,165,233,0.8)]"></div>
             </div>
+            <div id="login-progress-text" class="text-xs font-mono text-sky-300 mt-2 font-semibold">0%</div>
         </div>
 
         <div class="bg-white/80 dark:bg-deepblue-900/85 border border-slate-200/60 dark:border-sky-500/30 rounded-[2.5rem] shadow-[0_25px_70px_rgba(2,132,199,0.35)] max-w-md w-full p-8 md:p-10 relative backdrop-blur-2xl transform transition-all overflow-hidden perspective-container">
@@ -127,6 +136,21 @@
             <div class="mt-6 pt-4 border-t border-slate-200/50 dark:border-blue-900/40 text-center relative z-10">
                 <p class="text-[11px] font-medium text-slate-500 dark:text-slate-400 tracking-wide">Kooddoo Fisheries Complex &copy; 2026. All rights reserved</p>
             </div>
+        </div>
+    </div>
+
+    <!-- 3D Offline Warning Modal -->
+    <div id="offline-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-xl z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-gradient-to-br from-red-950 via-deepblue-950 to-slate-950 border border-red-500/40 text-white rounded-[2.5rem] shadow-[0_25px_60px_rgba(239,68,68,0.4)] max-w-sm w-full p-6 text-center relative flex flex-col items-center space-y-4 perspective-container overflow-hidden">
+            <div class="absolute -right-16 -top-16 w-40 h-40 bg-red-600/20 rounded-full blur-2xl pointer-events-none"></div>
+            <div class="animate-offline-3d p-4 rounded-3xl bg-gradient-to-tr from-red-600 to-rose-500 text-white shadow-lg border border-red-300/40 relative">
+                <svg class="w-10 h-10 drop-shadow-md" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636a9 9 0 010 12.728m-2.828-2.828a5 5 0 010-7.071m-4.243 4.243a1 1 0 010-1.414M4.93 4.93l14.14 14.14M1 1l22 22"></path></svg>
+            </div>
+            <h3 class="text-base font-bold text-white tracking-wide uppercase">Check Internet Connection!</h3>
+            <p class="text-xs text-red-200/90 leading-relaxed font-sans">You are currently offline. Pass requests cannot be issued or synced to cloud records without an active internet connection.</p>
+            <button onclick="closeOfflineModal()" class="w-full py-3 bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white font-semibold rounded-2xl text-xs transition shadow-lg border border-red-400/40">
+                Acknowledge & Retry
+            </button>
         </div>
     </div>
 
@@ -195,12 +219,12 @@
                     <form id="ticket-form" class="space-y-4">
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
-                                <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">Employee ID * (Type 6 digits for Auto-Fill)</label>
+                                <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">Employee ID * (Type 6 digits)</label>
                                 <input type="text" id="emp-id" required maxlength="6" placeholder="e.g. 101758" class="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-deepblue-950 border border-slate-200 dark:border-blue-900/60 rounded-xl focus:ring-2 focus:ring-sky-500 focus:outline-none text-xs text-slate-900 dark:text-white font-mono">
                             </div>
                             <div>
-                                <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">Employee Full Name *</label>
-                                <input type="text" id="emp-name" required placeholder="e.g. Mohamed Ahmed" class="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-deepblue-950 border border-slate-200 dark:border-blue-900/60 rounded-xl focus:ring-2 focus:ring-sky-500 focus:outline-none text-xs text-slate-900 dark:text-white">
+                                <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">Employee Full Name (Auto from Sheet)</label>
+                                <input type="text" id="emp-name" readonly placeholder="Auto-filled via Emp ID" class="w-full px-3.5 py-2.5 bg-slate-100 dark:bg-deepblue-950/50 border border-slate-200 dark:border-blue-900/40 rounded-xl text-xs text-slate-500 dark:text-slate-400 cursor-not-allowed select-none">
                             </div>
                         </div>
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -213,11 +237,11 @@
                             </div>
                             <div>
                                 <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">Designation</label>
-                                <input type="text" id="emp-designation" placeholder="e.g. Chief Engineer" class="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-deepblue-950 border border-slate-200 dark:border-blue-900/60 rounded-xl focus:ring-2 focus:ring-sky-500 focus:outline-none text-xs text-slate-900 dark:text-white">
+                                <input type="text" id="emp-designation" readonly placeholder="Auto-filled" class="w-full px-3.5 py-2.5 bg-slate-100 dark:bg-deepblue-950/50 border border-slate-200 dark:border-blue-900/40 rounded-xl text-xs text-slate-500 dark:text-slate-400 cursor-not-allowed select-none">
                             </div>
                             <div>
                                 <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">Department / Division</label>
-                                <input type="text" id="emp-dept" placeholder="e.g. Production" class="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-deepblue-950 border border-slate-200 dark:border-blue-900/60 rounded-xl focus:ring-2 focus:ring-sky-500 focus:outline-none text-xs text-slate-900 dark:text-white">
+                                <input type="text" id="emp-dept" readonly placeholder="Auto-filled" class="w-full px-3.5 py-2.5 bg-slate-100 dark:bg-deepblue-950/50 border border-slate-200 dark:border-blue-900/40 rounded-xl text-xs text-slate-500 dark:text-slate-400 cursor-not-allowed select-none">
                             </div>
                         </div>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -455,7 +479,7 @@
                     </div>
                     <div class="flex gap-3 w-full md:w-auto">
                         <input type="text" id="common-status-search" oninput="renderCommonStatusTracker()" placeholder="Filter employee or ID..." class="px-4 py-2.5 bg-deepblue-950/90 border border-blue-900/70 rounded-2xl text-xs text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-500 backdrop-blur-md shadow-inner">
-                        <button onclick="loadPassesFromFirebase()" class="bg-sky-600 hover:bg-sky-500 text-white text-xs font-medium px-4 py-2.5 rounded-2xl transition shadow-lg shadow-sky-600/30">Refresh</button>
+                        <button onclick="refreshCommonStatusTracker()" class="bg-sky-600 hover:bg-sky-500 text-white text-xs font-medium px-4 py-2.5 rounded-2xl transition shadow-lg shadow-sky-600/30">Refresh</button>
                     </div>
                 </div>
 
@@ -716,35 +740,53 @@
         let activePassDetails = null;
         let modalActivePass = null;
 
+        // In-memory sheet roster cache for zero-lag 0ms lookup speeds
+        const sheetCache = new Map();
         const PUBLISHED_GOOGLE_SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRqjgwBdgLWkOxbJ76twZRAzcujzsgpZ-3vXSZP9-e9Uz1MNfXrLCF9U4-yxwoSxCY9kg8xCRKwek8z/pub?output=csv";
 
-        async function fetchFromGoogleSheet(empId) {
-            if (!PUBLISHED_GOOGLE_SHEET_CSV_URL || PUBLISHED_GOOGLE_SHEET_CSV_URL.includes("YOUR_PUBLISHED_CSV_LINK_HERE")) return null;
+        // Pre-fetch Google Sheet once on load for high performance
+        async function prefetchGoogleSheetData() {
+            if (!PUBLISHED_GOOGLE_SHEET_CSV_URL || PUBLISHED_GOOGLE_SHEET_CSV_URL.includes("YOUR_PUBLISHED_CSV_LINK_HERE")) return;
             try {
                 const res = await fetch(PUBLISHED_GOOGLE_SHEET_CSV_URL);
                 const csvText = await res.text();
                 const lines = csvText.split('\n');
+                sheetCache.clear();
                 for (let line of lines) {
                     const cols = line.split(',');
-                    if (cols[1] && cols[1].trim() === empId) {
-                        return {
+                    if (cols[1] && cols[1].trim()) {
+                        const empId = cols[1].trim();
+                        sheetCache.set(empId, {
                             name: cols[2] ? cols[2].trim() : '',
                             gender: cols[6] ? cols[6].trim() : 'Male',
                             designation: cols[7] ? cols[7].trim() : '',
                             section: cols[8] ? cols[8].trim() : ''
-                        };
+                        });
                     }
                 }
             } catch (e) {
-                console.warn("Google Sheet fetch error:", e);
+                console.warn("Fast pre-fetch failed, falling back to real-time request:", e);
             }
+        }
+        prefetchGoogleSheetData();
+
+        async function fetchFromGoogleSheet(empId) {
+            if (sheetCache.has(empId)) return sheetCache.get(empId);
             return null;
         }
 
         async function autoFillStaffDetails(empId) {
             const cleanId = empId.trim();
             const statusIndicator = document.getElementById('lookup-status-indicator');
-            if (!cleanId) {
+            const nameEl = document.getElementById('emp-name');
+            const genderEl = document.getElementById('emp-gender');
+            const desigEl = document.getElementById('emp-designation');
+            const deptEl = document.getElementById('emp-dept');
+
+            if (!cleanId || cleanId.length < 6) {
+                if (nameEl) nameEl.value = '';
+                if (desigEl) desigEl.value = '';
+                if (deptEl) deptEl.value = '';
                 if (statusIndicator) {
                     statusIndicator.innerText = "Ready for Emp ID";
                     statusIndicator.className = "text-[10px] font-mono px-2.5 py-1 rounded-full bg-slate-100 dark:bg-deepblue-950 text-slate-400";
@@ -753,19 +795,22 @@
             }
 
             const match = await fetchFromGoogleSheet(cleanId);
-            if (match) {
-                if (document.getElementById('emp-name')) document.getElementById('emp-name').value = match.name || '';
-                if (document.getElementById('emp-gender')) document.getElementById('emp-gender').value = match.gender || 'Male';
-                if (document.getElementById('emp-designation')) document.getElementById('emp-designation').value = match.designation || '';
-                if (document.getElementById('emp-dept')) document.getElementById('emp-dept').value = match.section || '';
+            if (match && match.name) {
+                if (nameEl) nameEl.value = match.name || '';
+                if (genderEl) genderEl.value = match.gender || 'Male';
+                if (desigEl) desigEl.value = match.designation || '';
+                if (deptEl) deptEl.value = match.section || '';
                 if (statusIndicator) {
                     statusIndicator.innerText = "Auto-filled from Google Sheet ✓";
                     statusIndicator.className = "text-[10px] font-mono px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400";
                 }
             } else {
+                if (nameEl) nameEl.value = '';
+                if (desigEl) desigEl.value = '';
+                if (deptEl) deptEl.value = '';
                 if (statusIndicator) {
-                    statusIndicator.innerText = "Manual Entry Required";
-                    statusIndicator.className = "text-[10px] font-mono px-2.5 py-1 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400";
+                    statusIndicator.innerText = "ID Not Found in Sheet!";
+                    statusIndicator.className = "text-[10px] font-mono px-2.5 py-1 rounded-full bg-red-500/10 text-red-600 dark:text-red-400 font-bold";
                 }
             }
         }
@@ -775,9 +820,16 @@
             autoFillStaffDetails(this.value);
         });
 
-        document.getElementById('emp-name').addEventListener('input', function(e) {
-            this.value = this.value.replace(/[^A-Za-z\s]/g, '');
-        });
+        window.showOfflineModal = function() {
+            const modal = document.getElementById('offline-modal');
+            modal.classList.remove('hidden');
+            gsap.fromTo(modal.firstElementChild, { scale: 0.8, opacity: 0, y: 30 }, { scale: 1, opacity: 1, y: 0, duration: 0.5, ease: "back.out(1.7)" });
+        }
+
+        window.closeOfflineModal = function() {
+            const modal = document.getElementById('offline-modal');
+            gsap.to(modal.firstElementChild, { scale: 0.85, opacity: 0, duration: 0.3, onComplete: () => { modal.classList.add('hidden'); }});
+        }
 
         function updateNetworkStatus() {
             const badge = document.getElementById('network-status-badge');
@@ -939,33 +991,53 @@
                 return;
             }
 
-            // Show 3D Animated Loading Screen
+            // Show 3D Animated Loading Screen with smooth progress bar from 0% to 100%
             const loaderOverlay = document.getElementById('login-loader-overlay');
+            const progressBar = document.getElementById('login-progress-bar');
+            const progressText = document.getElementById('login-progress-text');
+            
             loaderOverlay.classList.remove('hidden');
             gsap.to(loaderOverlay, { opacity: 1, duration: 0.4 });
+            progressBar.style.width = '0%';
+            progressText.innerText = '0%';
 
-            // Simulate loading delay for the 3D animated experience
-            setTimeout(async () => {
-                currentUser = { username: matched.username, role: matched.role };
-                document.getElementById('current-user-display').innerText = matched.username;
-                document.getElementById('current-role-display').innerText = matched.role.toUpperCase();
-                document.getElementById('user-session-box').classList.remove('hidden');
+            // Smooth progress animation over 1.6 seconds
+            const startTime = performance.now();
+            const duration = 1600;
 
-                const scannerBtn = document.getElementById('btn-tab-scanner');
-                if (matched.role === 'admin' || matched.role === 'captain') { scannerBtn.classList.remove('hidden'); } else { scannerBtn.classList.add('hidden'); }
-                
-                gsap.to('#login-modal', { opacity: 0, scale: 1.05, duration: 0.8, ease: "power3.inOut", onComplete: () => { 
-                    document.getElementById('login-modal').classList.add('hidden');
-                    loaderOverlay.classList.add('hidden');
-                    loaderOverlay.style.opacity = '0';
-                }});
+            function updateProgress(currentTime) {
+                const elapsed = currentTime - startTime;
+                const progress = Math.min(Math.floor((elapsed / duration) * 100), 100);
+                progressBar.style.width = progress + '%';
+                progressText.innerText = progress + '%';
 
-                if (matched.role === 'admin') { document.getElementById('btn-tab-admin').classList.remove('hidden'); switchTab('admin'); }
-                else if (matched.role === 'hr') { document.getElementById('btn-tab-admin').classList.add('hidden'); switchTab('ticketing'); }
-                else if (matched.role === 'supervisor') { document.getElementById('btn-tab-admin').classList.add('hidden'); switchTab('supervisor'); }
-                else if (matched.role === 'hod') { document.getElementById('btn-tab-admin').classList.add('hidden'); switchTab('hod'); }
-                else if (matched.role === 'captain') { document.getElementById('btn-tab-admin').classList.add('hidden'); switchTab('scanner'); }
-            }, 1200);
+                if (progress < 100) {
+                    requestAnimationFrame(updateProgress);
+                } else {
+                    // Complete & transition into dashboard
+                    currentUser = { username: matched.username, role: matched.role };
+                    document.getElementById('current-user-display').innerText = matched.username;
+                    document.getElementById('current-role-display').innerText = matched.role.toUpperCase();
+                    document.getElementById('user-session-box').classList.remove('hidden');
+
+                    const scannerBtn = document.getElementById('btn-tab-scanner');
+                    if (matched.role === 'admin' || matched.role === 'captain') { scannerBtn.classList.remove('hidden'); } else { scannerBtn.classList.add('hidden'); }
+                    
+                    gsap.to('#login-modal', { opacity: 0, scale: 1.05, duration: 0.8, ease: "power3.inOut", onComplete: () => { 
+                        document.getElementById('login-modal').classList.add('hidden');
+                        document.body.classList.remove('login-locked');
+                        loaderOverlay.classList.add('hidden');
+                        loaderOverlay.style.opacity = '0';
+                    }});
+
+                    if (matched.role === 'admin') { document.getElementById('btn-tab-admin').classList.remove('hidden'); switchTab('admin'); }
+                    else if (matched.role === 'hr') { document.getElementById('btn-tab-admin').classList.add('hidden'); switchTab('ticketing'); }
+                    else if (matched.role === 'supervisor') { document.getElementById('btn-tab-admin').classList.add('hidden'); switchTab('supervisor'); }
+                    else if (matched.role === 'hod') { document.getElementById('btn-tab-admin').classList.add('hidden'); switchTab('hod'); }
+                    else if (matched.role === 'captain') { document.getElementById('btn-tab-admin').classList.add('hidden'); switchTab('scanner'); }
+                }
+            }
+            requestAnimationFrame(updateProgress);
         });
 
         window.logoutUser = function() {
@@ -973,6 +1045,7 @@
             document.getElementById('user-session-box').classList.add('hidden');
             document.getElementById('login-password').value = '';
             document.getElementById('btn-tab-scanner').classList.add('hidden');
+            document.body.classList.add('login-locked');
             const modal = document.getElementById('login-modal');
             modal.classList.remove('hidden');
             gsap.fromTo(modal, { opacity: 0, scale: 0.95 }, { opacity: 1, scale: 1, duration: 0.6, ease: "power3.out" });
@@ -996,6 +1069,11 @@
         document.getElementById('admin-manual-ticket-form').addEventListener('submit', async function(e) {
             e.preventDefault();
             if (!currentUser || currentUser.role !== 'admin') { await showCustomAlert("Access denied: Administrator privileges required.", "Access Restricted"); return; }
+
+            if (!navigator.onLine) {
+                showOfflineModal();
+                return;
+            }
 
             const empId = document.getElementById('admin-emp-id').value.trim();
             const name = document.getElementById('admin-emp-name').value.trim();
@@ -1135,11 +1213,18 @@
 
         document.getElementById('ticket-form').addEventListener('submit', async function(e) {
             e.preventDefault();
-            const name = document.getElementById('emp-name').value.trim();
-            const empId = document.getElementById('emp-id').value.trim();
 
-            if (!/^\d{6}$/.test(empId)) { await showCustomAlert("Employee ID must be exactly 6 digits (e.g. 123456).", "Validation Error"); return; }
-            if (!/^[A-Za-z\s]+$/.test(name)) { await showCustomAlert("Employee Name can only contain letters and spaces.", "Validation Error"); return; }
+            // Strictly deny offline submissions with 3D animation
+            if (!navigator.onLine) {
+                showOfflineModal();
+                return;
+            }
+
+            const empId = document.getElementById('emp-id').value.trim();
+            const name = document.getElementById('emp-name').value.trim();
+
+            if (!/^\d{6}$/.test(empId)) { await showCustomAlert("Employee ID must be exactly 6 digits (e.g. 101758).", "Validation Error"); return; }
+            if (!name) { await showCustomAlert("Valid Employee ID required to auto-fill employee name from Google Sheet.", "Validation Error"); return; }
 
             const dept = document.getElementById('emp-dept').value.trim() || 'General';
             const travelDate = document.getElementById('travel-date').value;
@@ -1252,6 +1337,12 @@
             if (document.getElementById('filter-date')) document.getElementById('filter-date').value = "";
             if (document.getElementById('filter-search')) document.getElementById('filter-search').value = "";
             renderHRTable();
+        }
+
+        window.refreshCommonStatusTracker = function() {
+            const searchInput = document.getElementById('common-status-search');
+            if (searchInput) searchInput.value = "";
+            renderCommonStatusTracker();
         }
 
         window.renderSupervisorTable = function() {
