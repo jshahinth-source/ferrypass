@@ -9,7 +9,7 @@
     <meta id="meta-theme-color" name="theme-color" content="#040812">
     
     <!-- Embedded Manifest via Data URI -->
-    <link rel="manifest" href='data:application/manifest+json;charset=utf-8,%7B%22name%22%3A%22MIFCO%20Kooddoo%20Ferry%20Pass%20System%22%2C%22short_name%22%3A%22MIFCO%20Ferry%22%2C%22start_url%22%3A%22.%2Findex.html%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%23040812%22%2C%22theme_color%22%3A%22%23040812%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22data%3Aimage%2Fsvg%2Fxml%2C%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%20192%20192%27%3E%3Crect%20width%3D%27100%25%27%20height%3D%27100%25%27%20fill%3D%27%23040812%27%2F%3E%3Ctext%20x%3D%2750%25%27%20y%3D%2755%25%27%20font-size%3D%27100%27%20text-anchor%3D%27middle%27%20dominant-baseline%3D%27middle%27%3E%F0%9F%9A%A2%3C%2Ftext%3E%3C%2Fsvg%3E%22%2C%22sizes%22%3A%22192x192%22%2C%22type%22%3A%22image%2Fsvg%2Fxml%22%7D%5D%7D'>
+    <link rel="manifest" href='data:application/manifest+json;charset=utf-8,%7B%22name%22%3A%22MIFCO%20Kooddoo%20Ferry%20Pass%20System%22%2C%22short_name%22%3A%22MIFCO%20Ferry%22%2C%22start_url%22%3A%22.%2Findex.html%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%23040812%22%2C%22theme_color%22%3A%22%23040812%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22data%3Aimage%2Fsvg%2Fxml%2C%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%20192%20192%27%3E%3Crect%20width%3D%27100%25%27%20height%3D%27100%25%27%20fill%3D%27%23040812%27%2F%3E%3Ctext%20x%3D%2750%25%27%20y%3D%2755%25%27%20font-size%3D%27100%27%20text-anchor%3D%27middle%27%20dominant-baseline%3D%27middle%27%3E%F0%9F%9A%A2%3C%2Ftext%3E%3C%2Fsvg%3E%22%2C%22sizes%22%3A%22192x192%22%2C%22type%22%3A%22image%2Fsvg%2Fxml%27%7D%5D%7D'>
 
     <title>MIFCO Kooddoo Ferry Ticketing & Verification</title>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -1187,15 +1187,25 @@
             } catch (err) { console.error("Error deleting user:", err); await showCustomAlert("Failed to delete user.", "Error"); }
         }
 
+        // FIXED: Announcement realtime listener with automatic initialization if document is missing
         function setupAnnouncementListener() {
-            onSnapshot(settingsDocRef, (docSnap) => {
+            onSnapshot(settingsDocRef, async (docSnap) => {
+                const tickerEl = document.getElementById('live-announcement-ticker');
+                const adminInput = document.getElementById('admin-announcement-input');
+                
                 if (docSnap.exists()) {
                     const data = docSnap.data();
                     if (data && data.text) {
-                        const tickerEl = document.getElementById('live-announcement-ticker');
                         if (tickerEl) tickerEl.innerText = data.text;
-                        const adminInput = document.getElementById('admin-announcement-input');
                         if (adminInput && document.activeElement !== adminInput) { adminInput.value = data.text; }
+                    }
+                } else {
+                    // Initialize default announcement doc if it doesn't exist yet in Firestore
+                    const defaultText = "Welcome to MIFCO Kooddoo Ferry Ticketing & Verification Suite. Please submit pass requests on time.";
+                    try {
+                        await setDoc(settingsDocRef, { text: defaultText, updatedAt: new Date().toISOString() });
+                    } catch (e) {
+                        console.warn("Could not auto-initialize announcement doc:", e);
                     }
                 }
             }, (err) => { console.error("Error listening to announcement:", err); });
@@ -1277,18 +1287,13 @@
                 const snap = await getDoc(feedRef);
                 let logs = [];
                 const nowMs = Date.now();
-                // Generate a unique identifier for this specific action event to prevent collision
                 const logId = 'notif_' + nowMs + '_' + Math.random().toString(36).substring(2, 7);
 
                 if (snap.exists() && snap.data().logs) {
-                    // Keep only recent logs within the last 15 seconds to keep Firebase payload clean
                     logs = snap.data().logs.filter(log => log.timeMs && (nowMs - log.timeMs < 15000));
                 }
 
-                // Prepend the new unique notification log
                 logs.unshift({ logId, message, timestamp, timeMs: nowMs });
-
-                // Trim to a safe maximum size
                 if (logs.length > 15) logs = logs.slice(0, 15);
 
                 await setDoc(feedRef, { logs });
@@ -1297,25 +1302,22 @@
             }
         }
 
-        // Keep track of processed IDs locally so they never double-fire or get stuck
         const processedLogIds = new Set();
 
         function setupNotificationsListener() {
             onSnapshot(notificationsDocRef, (docSnap) => {
                 if (docSnap.exists() && docSnap.data().logs) {
                     const nowMs = Date.now();
-                    // Filter logs to only active ones within the last 15 seconds window
                     const activeLogs = docSnap.data().logs.filter(log => log.timeMs && (nowMs - log.timeMs < 15000));
 
-                    // Iterate through active logs and trigger toasts for any we haven't seen yet
                     activeLogs.forEach(log => {
                         if (log.logId && !processedLogIds.has(log.logId)) {
                             processedLogIds.add(log.logId);
-                            showBottomRightToast(log.message);
+                            const msgText = (typeof log.message === 'string' && log.message.trim() !== '') ? log.message : (log.text || "System status updated successfully.");
+                            showBottomRightToast(msgText);
                         }
                     });
 
-                    // Automatically clean up local tracking cache for expired logs to free memory
                     if (processedLogIds.size > 50) {
                         const activeIds = new Set(activeLogs.map(l => l.logId));
                         for (let id of processedLogIds) {
@@ -1328,7 +1330,7 @@
             });
         }
 
-        async function updateAnnouncement() {
+        window.updateAnnouncement = async function() {
             if (!currentUser || currentUser.role !== 'admin') { await showCustomAlert("Access denied: Administrator privileges required.", "Access Restricted"); return; }
             const text = document.getElementById('admin-announcement-input').value.trim();
             if (!text) { await showCustomAlert("Announcement text cannot be empty.", "Validation Error"); return; }
@@ -1336,7 +1338,7 @@
                 await setDoc(settingsDocRef, { text, updatedAt: new Date().toISOString() });
                 await showCustomAlert("Live announcement updated successfully!", "Announcement Updated");
             } catch (err) { console.error("Error updating announcement:", err); await showCustomAlert("Failed to update announcement.", "Error"); }
-        }
+        };
 
         function updateMaldivesClock() {
             const now = new Date();
@@ -1390,6 +1392,12 @@
 
             if (!/^\d{6}$/.test(empId)) { await showCustomAlert("Employee ID must be exactly 6 digits (e.g. 101758).", "Validation Error"); return; }
             if (!name) { await showCustomAlert("Valid Employee ID required to auto-fill employee name from Google Sheet.", "Validation Error"); return; }
+
+            const existingActivePass = allPasses.find(p => p.empId === empId && !p.status.includes('Denied') && p.status !== 'Boarded');
+            if (existingActivePass) {
+                await showCustomAlert(`Employee ID ${empId} already has an active pass (${existingActivePass.passId}) with status "${existingActivePass.status}". You cannot request another pass until the current pass has been boarded.`, "Active Pass Restriction");
+                return;
+            }
 
             const dept = document.getElementById('emp-dept').value.trim() || 'General';
             const travelDate = document.getElementById('travel-date').value;
@@ -1781,7 +1789,8 @@
                 return;
             }
 
-            const isAlreadyBoarded = foundPass.status === 'Boarded';
+            // FIXED: Strictly check if status is already 'Boarded' to display the correct message instead of the check-in button
+            const isAlreadyBoarded = (foundPass.status === 'Boarded');
             resultBox.innerHTML = `
                 <div class="bg-white dark:bg-deepblue-900 border border-slate-200 dark:border-blue-900/60 rounded-2xl p-5 shadow-lg space-y-4">
                     <div class="flex justify-between items-start border-b border-slate-100 dark:border-blue-900/40 pb-3">
