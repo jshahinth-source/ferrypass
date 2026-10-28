@@ -1187,7 +1187,6 @@
             } catch (err) { console.error("Error deleting user:", err); await showCustomAlert("Failed to delete user.", "Error"); }
         }
 
-        // FIXED: Announcement realtime listener with automatic initialization if document is missing
         function setupAnnouncementListener() {
             onSnapshot(settingsDocRef, async (docSnap) => {
                 const tickerEl = document.getElementById('live-announcement-ticker');
@@ -1200,7 +1199,6 @@
                         if (adminInput && document.activeElement !== adminInput) { adminInput.value = data.text; }
                     }
                 } else {
-                    // Initialize default announcement doc if it doesn't exist yet in Firestore
                     const defaultText = "Welcome to MIFCO Kooddoo Ferry Ticketing & Verification Suite. Please submit pass requests on time.";
                     try {
                         await setDoc(settingsDocRef, { text: defaultText, updatedAt: new Date().toISOString() });
@@ -1211,15 +1209,14 @@
             }, (err) => { console.error("Error listening to announcement:", err); });
         }
 
-        // Web Audio API small alert chime sound
         function playNotificationSound() {
             try {
                 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
                 const osc = audioCtx.createOscillator();
                 const gainNode = audioCtx.createGain();
                 osc.type = 'sine';
-                osc.frequency.setValueAtTime(587.33, audioCtx.currentTime); // D5 note
-                osc.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.15); // A5 note
+                osc.frequency.setValueAtTime(587.33, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.15);
                 gainNode.gain.setValueAtTime(0.15, audioCtx.currentTime);
                 gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.4);
                 osc.connect(gainNode);
@@ -1231,7 +1228,6 @@
             }
         }
 
-        // Super smooth notification toast system optimized for multiple simultaneous updates
         function showBottomRightToast(message) {
             playNotificationSound();
             const container = document.getElementById('bottom-right-toast-container');
@@ -1248,13 +1244,11 @@
             `;
             container.appendChild(toast);
 
-            // Smooth entrance animation
             gsap.fromTo(toast, 
                 { y: 30, opacity: 0, scale: 0.95 }, 
                 { y: 0, opacity: 1, scale: 1, duration: 0.5, ease: "back.out(1.4)" }
             );
 
-            // Auto dismiss after 9000 milliseconds (9 seconds) with ultra smooth fade & slide out
             const dismissTimeout = setTimeout(() => {
                 dismissToast(toast);
             }, 9000);
@@ -1789,7 +1783,6 @@
                 return;
             }
 
-            // FIXED: Strictly check if status is already 'Boarded' to display the correct message instead of the check-in button
             const isAlreadyBoarded = (foundPass.status === 'Boarded');
             resultBox.innerHTML = `
                 <div class="bg-white dark:bg-deepblue-900 border border-slate-200 dark:border-blue-900/60 rounded-2xl p-5 shadow-lg space-y-4">
@@ -1823,10 +1816,13 @@
 
         window.markAsBoarded = async function(firestoreId) {
             try {
-                await updateDoc(doc(db, "passes", firestoreId), { status: 'Boarded', lastUpdated: new Date().toISOString() });
-                await logApprovalAction(`Pass ${firestoreId} was checked-in and marked as Boarded by Captain/Driver`, new Date().toISOString());
-                await showCustomAlert("Passenger successfully checked-in and marked as Boarded!", "Boarding Confirmed");
                 const pass = allPasses.find(p => p.firestoreId === firestoreId);
+                const displayPassId = pass ? pass.passId : firestoreId;
+                const displayName = pass ? ` (${pass.name})` : '';
+
+                await updateDoc(doc(db, "passes", firestoreId), { status: 'Boarded', lastUpdated: new Date().toISOString() });
+                await logApprovalAction(`Pass ${displayPassId}${displayName} has been successfully verified & boarded by Captain/Driver`, new Date().toISOString());
+                await showCustomAlert("Passenger successfully checked-in and marked as Boarded!", "Boarding Confirmed");
                 if (pass) window.handleScan(pass.passId);
             } catch (error) { console.error(error); await showCustomAlert("Failed to update status.", "Error"); }
         }
