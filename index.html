@@ -76,7 +76,6 @@
         .boat-3d-motion { transform-style: preserve-3d; animation: boatFloating3D 4s ease-in-out infinite; }
         .caustics-light { animation: causticsGlow 6s ease-in-out infinite; }
         
-        /* 3D Offline Modal Custom Animations */
         @keyframes offlinePulse3D {
             0%, 100% { transform: scale(1) rotate(0deg); }
             50% { transform: scale(1.08) rotate(-3deg); }
@@ -95,7 +94,6 @@
             <div class="absolute bottom-0 left-0 right-0 h-80 opacity-30 water-wave-2 rounded-t-[100%] blur-2xl transform translate-y-10"></div>
         </div>
 
-        <!-- 3D Login Loading Screen Overlay (Hidden by default) -->
         <div id="login-loader-overlay" class="absolute inset-0 bg-deepblue-950/95 backdrop-blur-2xl z-20 flex flex-col items-center justify-center hidden opacity-0 transition-opacity duration-500">
             <div class="boat-3d-motion p-6 rounded-3xl bg-gradient-to-tr from-sky-500 via-blue-600 to-indigo-600 text-white mb-6 shadow-[0_20px_50px_rgba(14,165,233,0.6)] border border-sky-300/50 relative">
                 <div class="absolute inset-0 rounded-3xl border border-white/60 animate-ping pointer-events-none"></div>
@@ -154,6 +152,9 @@
         </div>
     </div>
 
+    <!-- BOTTOM-RIGHT FLOATING NOTIFICATION TOAST CONTAINER -->
+    <div id="bottom-right-toast-container" class="fixed bottom-6 right-6 z-50 flex flex-col space-y-3 max-w-sm w-full pointer-events-none"></div>
+
     <header class="bg-white/90 dark:bg-deepblue-900/90 border-b border-slate-200 dark:border-blue-900/40 text-slate-800 dark:text-white sticky top-0 z-40 backdrop-blur-xl transition-colors duration-300">
         <div class="max-w-7xl mx-auto px-4 py-3.5 flex flex-col md:flex-row justify-between items-center gap-3">
             <div class="flex items-center gap-3">
@@ -205,432 +206,455 @@
         </div>
     </nav>
 
-    <main class="max-w-7xl mx-auto px-4 py-6 flex-grow w-full">
-        <section id="tab-ticketing" class="space-y-6">
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
-                <div class="bg-white dark:bg-deepblue-900 rounded-3xl shadow-xl p-6 border border-slate-200 dark:border-blue-900/45 transition-all">
-                    <h2 class="text-base font-bold text-slate-900 dark:text-white mb-4 pb-3 border-b border-slate-100 dark:border-blue-900/3 flex items-center justify-between">
-                        <span class="flex items-center gap-2.5">
-                            <span class="bg-sky-50 dark:bg-sky-950/80 text-sky-600 dark:text-sky-400 text-xs px-2.5 py-1 rounded-lg font-semibold border border-sky-100 dark:border-sky-800/60">Step 1</span>
-                            Generate Ferry Pass
-                        </span>
-                        <span id="lookup-status-indicator" class="text-[10px] font-mono px-2.5 py-1 rounded-full bg-slate-100 dark:bg-deepblue-950 text-slate-400">Ready for Emp ID</span>
-                    </h2>
-                    <form id="ticket-form" class="space-y-4">
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
-                                <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">Employee ID * (Type 6 digits)</label>
-                                <input type="text" id="emp-id" required maxlength="6" placeholder="e.g. 101758" class="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-deepblue-950 border border-slate-200 dark:border-blue-900/60 rounded-xl focus:ring-2 focus:ring-sky-500 focus:outline-none text-xs text-slate-900 dark:text-white font-mono">
-                            </div>
-                            <div>
-                                <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">Employee Full Name (Auto from Sheet)</label>
-                                <input type="text" id="emp-name" readonly placeholder="Auto-filled via Emp ID" class="w-full px-3.5 py-2.5 bg-slate-100 dark:bg-deepblue-950/50 border border-slate-200 dark:border-blue-900/40 rounded-xl text-xs text-slate-500 dark:text-slate-400 cursor-not-allowed select-none">
-                            </div>
-                        </div>
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <div>
-                                <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">Gender *</label>
-                                <select id="emp-gender" required class="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-deepblue-950 border border-slate-200 dark:border-blue-900/60 rounded-xl focus:ring-2 focus:ring-sky-500 focus:outline-none text-xs text-slate-900 dark:text-white">
-                                    <option value="Male">Male</option>
-                                    <option value="Female">Female</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">Designation</label>
-                                <input type="text" id="emp-designation" readonly placeholder="Auto-filled" class="w-full px-3.5 py-2.5 bg-slate-100 dark:bg-deepblue-950/50 border border-slate-200 dark:border-blue-900/40 rounded-xl text-xs text-slate-500 dark:text-slate-400 cursor-not-allowed select-none">
-                            </div>
-                            <div>
-                                <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">Department / Division</label>
-                                <input type="text" id="emp-dept" readonly placeholder="Auto-filled" class="w-full px-3.5 py-2.5 bg-slate-100 dark:bg-deepblue-950/50 border border-slate-200 dark:border-blue-900/40 rounded-xl text-xs text-slate-500 dark:text-slate-400 cursor-not-allowed select-none">
-                            </div>
-                        </div>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
-                                <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">Travel Date *</label>
-                                <input type="date" id="travel-date" required class="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-deepblue-950 border border-slate-200 dark:border-blue-900/60 rounded-xl focus:ring-2 focus:ring-sky-500 focus:outline-none text-xs text-slate-900 dark:text-white">
-                            </div>
-                            <div>
-                                <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">Travel Time *</label>
-                                <input type="time" id="travel-time" required value="08:00" class="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-deepblue-950 border border-slate-200 dark:border-blue-900/60 rounded-xl focus:ring-2 focus:ring-sky-500 focus:outline-none text-xs text-slate-900 dark:text-white font-mono">
-                            </div>
-                        </div>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
-                                <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">Destination Route *</label>
-                                <select id="route-dest" required class="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-deepblue-950 border border-slate-200 dark:border-blue-900/60 rounded-xl focus:ring-2 focus:ring-sky-500 focus:outline-none text-xs text-slate-900 dark:text-white">
-                                    <option value="Kooddoo Jetty - Vilingili Route">Kooddoo Jetty ⇄ Vilingili</option>
-                                    <option value="Kooddoo Jetty - Nilandhoo Route">Kooddoo Jetty ⇄ Nilandhoo</option>
-                                    <option value="Kooddoo Jetty - Gemanafushi Route">Kooddoo Jetty ⇄ Gemanafushi</option>
-                                    <option value="Kooddoo Jetty - Maamendhoo Route">Kooddoo Jetty ⇄ Maamendhoo</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">Assigned Vessel *</label>
-                                <select id="vessel-name" required class="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-deepblue-950 border border-slate-200 dark:border-blue-900/60 rounded-xl focus:ring-2 focus:ring-sky-500 focus:outline-none text-xs text-slate-900 dark:text-white">
-                                    <option value="MIFCO Express 01">MIFCO Express 01</option>
-                                    <option value="Kooddoo Carrier 03">Kooddoo Carrier 03</option>
-                                    <option value="Fishermen Ferry 05">Fishermen Ferry 05</option>
-                                    <option value="Atoll Voyager 02">Atoll Voyager 02</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="pt-2">
-                            <button type="submit" class="w-full bg-sky-600 hover:bg-sky-500 text-white font-medium py-3 rounded-xl transition-all shadow-lg shadow-sky-600/20 text-xs transform hover:-translate-y-0.5">
-                                Submit Request for Supervisor Approval
-                            </button>
-                        </div>
-                    </form>
-                </div>
-
-                <div class="bg-white dark:bg-deepblue-900 rounded-3xl shadow-xl p-6 border border-slate-200 dark:border-blue-900/45 flex flex-col items-center">
-                    <h2 class="text-base font-bold text-slate-900 dark:text-white mb-4 pb-3 border-b border-slate-100 dark:border-blue-900/36 w-full flex items-center justify-between">
-                        <span class="flex items-center gap-2.5">
-                            <span class="bg-sky-50 dark:bg-sky-950/80 text-sky-700 dark:text-sky-300 text-xs px-2.5 py-1 rounded-lg font-semibold border border-sky-100 dark:border-sky-800/60">Step 2</span>
-                            Digital Ferry Pass Preview
-                        </span>
-                        <div class="flex items-center">
-                            <span id="pass-status-badge" class="text-[11px] bg-slate-100 dark:bg-deepblue-950 text-slate-600 dark:text-slate-300 px-3 py-1 rounded-full font-medium border border-slate-200 dark:border-blue-900/40 whitespace-nowrap">Awaiting Submission</span>
-                        </div>
-                    </h2>
-
-                    <div id="printable-pass" class="w-full max-w-sm bg-gradient-to-br from-deepblue-950 via-deepblue-900 to-deepblue-950 text-white rounded-3xl p-6 shadow-2xl relative overflow-hidden border border-sky-500/30 my-2">
-                        <div class="absolute -right-10 -bottom-10 w-40 h-40 bg-sky-500/15 rounded-full blur-2xl pointer-events-none animate-pulse-glow"></div>
-                        <div class="flex justify-between items-center border-b border-blue-900/60 pb-3 mb-4">
-                            <div>
-                                <h3 class="font-bold text-sm tracking-wide text-sky-200">MIFCO KOODDOO</h3>
-                                <p class="text-[10px] text-slate-400 uppercase tracking-widest font-medium">Official Ferry Pass</p>
-                            </div>
-                            <div class="text-right">
-                                <span id="preview-pass-id" class="text-[11px] font-mono bg-deepblue-950/90 px-2.5 py-1 rounded-xl text-sky-300 border border-sky-800/70 shadow-inner">---</span>
-                            </div>
-                        </div>
-                        <div class="space-y-3 mb-6 text-xs">
-                            <div>
-                                <p class="text-[10px] text-sky-300 uppercase tracking-wider font-semibold">Passenger Name</p>
-                                <p id="preview-name" class="font-bold text-sm text-white tracking-wide">---</p>
-                            </div>
-                            <div class="grid grid-cols-2 gap-2">
+    <!-- MAIN CONTENT LAYOUT CONTAINER (Centered & Optimized for Full Width) -->
+    <div class="max-w-7xl mx-auto px-4 py-6 flex-grow w-full">
+        
+        <main class="w-full space-y-6">
+            <section id="tab-ticketing" class="space-y-6">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+                    <div class="bg-white dark:bg-deepblue-900 rounded-3xl shadow-xl p-6 border border-slate-200 dark:border-blue-900/45 transition-all">
+                        <h2 class="text-base font-bold text-slate-900 dark:text-white mb-4 pb-3 border-b border-slate-100 dark:border-blue-900/3 flex items-center justify-between">
+                            <span class="flex items-center gap-2.5">
+                                <span class="bg-sky-50 dark:bg-sky-950/80 text-sky-600 dark:text-sky-400 text-xs px-2.5 py-1 rounded-lg font-semibold border border-sky-100 dark:border-sky-800/60">Step 1</span>
+                                Generate Ferry Pass
+                            </span>
+                            <span id="lookup-status-indicator" class="text-[10px] font-mono px-2.5 py-1 rounded-full bg-slate-100 dark:bg-deepblue-950 text-slate-400">Ready for Emp ID</span>
+                        </h2>
+                        <form id="ticket-form" class="space-y-4">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>
-                                    <p class="text-[10px] text-sky-300 uppercase tracking-wider font-semibold">Employee ID</p>
-                                    <p id="preview-empid" class="font-mono text-xs text-slate-300">---</p>
+                                    <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">Employee ID * (Type 6 digits)</label>
+                                    <input type="text" id="emp-id" required maxlength="6" placeholder="e.g. 101758" class="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-deepblue-950 border border-slate-200 dark:border-blue-900/60 rounded-xl focus:ring-2 focus:ring-sky-500 focus:outline-none text-xs text-slate-900 dark:text-white font-mono">
                                 </div>
                                 <div>
-                                    <p class="text-[10px] text-sky-300 uppercase tracking-wider font-semibold">Department</p>
-                                    <p id="preview-dept" class="text-xs text-slate-300">---</p>
+                                    <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">Employee Full Name (Auto from Sheet)</label>
+                                    <input type="text" id="emp-name" readonly placeholder="Auto-filled via Emp ID" class="w-full px-3.5 py-2.5 bg-slate-100 dark:bg-deepblue-950/50 border border-slate-200 dark:border-blue-900/40 rounded-xl text-xs text-slate-500 dark:text-slate-400 cursor-not-allowed select-none">
                                 </div>
                             </div>
-                            <div class="grid grid-cols-2 gap-2 pt-2 border-t border-blue-900/40">
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                                 <div>
-                                    <p class="text-[10px] text-sky-300 uppercase tracking-wider font-semibold">Vessel</p>
-                                    <p id="preview-vessel" class="text-xs font-semibold text-white">---</p>
+                                    <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">Gender *</label>
+                                    <select id="emp-gender" required class="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-deepblue-950 border border-slate-200 dark:border-blue-900/60 rounded-xl focus:ring-2 focus:ring-sky-500 focus:outline-none text-xs text-slate-900 dark:text-white">
+                                        <option value="Male">Male</option>
+                                        <option value="Female">Female</option>
+                                    </select>
                                 </div>
                                 <div>
-                                    <p class="text-[10px] text-sky-300 uppercase tracking-wider font-semibold">Travel Date & Time</p>
-                                    <p id="preview-date" class="text-xs font-semibold text-sky-300 font-mono">---</p>
+                                    <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">Designation</label>
+                                    <input type="text" id="emp-designation" readonly placeholder="Auto-filled" class="w-full px-3.5 py-2.5 bg-slate-100 dark:bg-deepblue-950/50 border border-slate-200 dark:border-blue-900/40 rounded-xl text-xs text-slate-500 dark:text-slate-400 cursor-not-allowed select-none">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">Department / Division</label>
+                                    <input type="text" id="emp-dept" readonly placeholder="Auto-filled" class="w-full px-3.5 py-2.5 bg-slate-100 dark:bg-deepblue-950/50 border border-slate-200 dark:border-blue-900/40 rounded-xl text-xs text-slate-500 dark:text-slate-400 cursor-not-allowed select-none">
                                 </div>
                             </div>
-                            <div>
-                                <p class="text-[10px] text-sky-300 uppercase tracking-wider font-semibold">Route</p>
-                                <p id="preview-route" class="text-xs text-slate-300">---</p>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">Travel Date *</label>
+                                    <input type="date" id="travel-date" required class="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-deepblue-950 border border-slate-200 dark:border-blue-900/60 rounded-xl focus:ring-2 focus:ring-sky-500 focus:outline-none text-xs text-slate-900 dark:text-white">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">Travel Time *</label>
+                                    <input type="time" id="travel-time" required value="08:00" class="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-deepblue-950 border border-slate-200 dark:border-blue-900/60 rounded-xl focus:ring-2 focus:ring-sky-500 focus:outline-none text-xs text-slate-900 dark:text-white font-mono">
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">Destination Route *</label>
+                                    <select id="route-dest" required class="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-deepblue-950 border border-slate-200 dark:border-blue-900/60 rounded-xl focus:ring-2 focus:ring-sky-500 focus:outline-none text-xs text-slate-900 dark:text-white">
+                                        <option value="Kooddoo Jetty - Vilingili Route">Kooddoo Jetty ⇄ Vilingili</option>
+                                        <option value="Kooddoo Jetty - Nilandhoo Route">Kooddoo Jetty ⇄ Nilandhoo</option>
+                                        <option value="Kooddoo Jetty - Gemanafushi Route">Kooddoo Jetty ⇄ Gemanafushi</option>
+                                        <option value="Kooddoo Jetty - Maamendhoo Route">Kooddoo Jetty ⇄ Maamendhoo</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">Assigned Vessel *</label>
+                                    <select id="vessel-name" required class="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-deepblue-950 border border-slate-200 dark:border-blue-900/60 rounded-xl focus:ring-2 focus:ring-sky-500 focus:outline-none text-xs text-slate-900 dark:text-white">
+                                        <option value="MIFCO Express 01">MIFCO Express 01</option>
+                                        <option value="Kooddoo Carrier 03">Kooddoo Carrier 03</option>
+                                        <option value="Fishermen Ferry 05">Fishermen Ferry 05</option>
+                                        <option value="Atoll Voyager 02">Atoll Voyager 02</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="pt-2">
+                                <button type="submit" class="w-full bg-sky-600 hover:bg-sky-500 text-white font-medium py-3 rounded-xl transition-all shadow-lg shadow-sky-600/20 text-xs transform hover:-translate-y-0.5">
+                                    Submit Request for Supervisor Approval
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div class="bg-white dark:bg-deepblue-900 rounded-3xl shadow-xl p-6 border border-slate-200 dark:border-blue-900/45 flex flex-col items-center">
+                        <h2 class="text-base font-bold text-slate-900 dark:text-white mb-4 pb-3 border-b border-slate-100 dark:border-blue-900/36 w-full flex items-center justify-between">
+                            <span class="flex items-center gap-2.5">
+                                <span class="bg-sky-50 dark:bg-sky-950/80 text-sky-700 dark:text-sky-300 text-xs px-2.5 py-1 rounded-lg font-semibold border border-sky-100 dark:border-sky-800/60">Step 2</span>
+                                Digital Ferry Pass Preview
+                            </span>
+                            <div class="flex items-center">
+                                <span id="pass-status-badge" class="text-[11px] bg-slate-100 dark:bg-deepblue-950 text-slate-600 dark:text-slate-300 px-3 py-1 rounded-full font-medium border border-slate-200 dark:border-blue-900/40 whitespace-nowrap">Awaiting Submission</span>
+                            </div>
+                        </h2>
+
+                        <div id="printable-pass" class="w-full max-w-sm bg-gradient-to-br from-deepblue-950 via-deepblue-900 to-deepblue-950 text-white rounded-3xl p-6 shadow-2xl relative overflow-hidden border border-sky-500/30 my-2">
+                            <div class="absolute -right-10 -bottom-10 w-40 h-40 bg-sky-500/15 rounded-full blur-2xl pointer-events-none animate-pulse-glow"></div>
+                            <div class="flex justify-between items-center border-b border-blue-900/60 pb-3 mb-4">
+                                <div>
+                                    <h3 class="font-bold text-sm tracking-wide text-sky-200">MIFCO KOODDOO</h3>
+                                    <p class="text-[10px] text-slate-400 uppercase tracking-widest font-medium">Official Ferry Pass</p>
+                                </div>
+                                <div class="text-right">
+                                    <span id="preview-pass-id" class="text-[11px] font-mono bg-deepblue-950/90 px-2.5 py-1 rounded-xl text-sky-300 border border-sky-800/70 shadow-inner">---</span>
+                                </div>
+                            </div>
+                            <div class="space-y-3 mb-6 text-xs">
+                                <div>
+                                    <p class="text-[10px] text-sky-300 uppercase tracking-wider font-semibold">Passenger Name</p>
+                                    <p id="preview-name" class="font-bold text-sm text-white tracking-wide">---</p>
+                                </div>
+                                <div class="grid grid-cols-2 gap-2">
+                                    <div>
+                                        <p class="text-[10px] text-sky-300 uppercase tracking-wider font-semibold">Employee ID</p>
+                                        <p id="preview-empid" class="font-mono text-xs text-slate-300">---</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-[10px] text-sky-300 uppercase tracking-wider font-semibold">Department</p>
+                                        <p id="preview-dept" class="text-xs text-slate-300">---</p>
+                                    </div>
+                                </div>
+                                <div class="grid grid-cols-2 gap-2 pt-2 border-t border-blue-900/40">
+                                    <div>
+                                        <p class="text-[10px] text-sky-300 uppercase tracking-wider font-semibold">Vessel</p>
+                                        <p id="preview-vessel" class="text-xs font-semibold text-white">---</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-[10px] text-sky-300 uppercase tracking-wider font-semibold">Travel Date & Time</p>
+                                        <p id="preview-date" class="text-xs font-semibold text-sky-300 font-mono">---</p>
+                                    </div>
+                                </div>
+                                <div>
+                                    <p class="text-[10px] text-sky-300 uppercase tracking-wider font-semibold">Route</p>
+                                    <p id="preview-route" class="text-xs text-slate-300">---</p>
+                                </div>
+                            </div>
+                            <div class="bg-white p-3.5 rounded-2xl flex items-center justify-center gap-4 text-slate-900 shadow-lg">
+                                <div id="qrcode" class="bg-white p-1 text-[11px] text-slate-400 text-center font-medium min-h-[85px] min-w-[85px] flex items-center justify-center">Pending Approvals</div>
+                                <div class="text-[11px] text-slate-600 leading-tight">
+                                    <p id="preview-approval-note" class="font-bold text-slate-900 mb-0.5">Awaiting Verifications</p>
+                                    <p class="text-[10px] text-slate-500">QR code unlocks once fully verified.</p>
+                                </div>
                             </div>
                         </div>
-                        <div class="bg-white p-3.5 rounded-2xl flex items-center justify-center gap-4 text-slate-900 shadow-lg">
-                            <div id="qrcode" class="bg-white p-1 text-[11px] text-slate-400 text-center font-medium min-h-[85px] min-w-[85px] flex items-center justify-center">Pending Approvals</div>
-                            <div class="text-[11px] text-slate-600 leading-tight">
-                                <p id="preview-approval-note" class="font-bold text-slate-900 mb-0.5">Awaiting Verifications</p>
-                                <p class="text-[10px] text-slate-500">QR code unlocks once fully verified.</p>
-                            </div>
+                        <div id="pass-actions" class="flex gap-3 w-full max-w-sm mt-4 hidden">
+                            <button onclick="downloadPassPNG()" class="flex-1 bg-sky-600 hover:bg-sky-500 text-white font-medium py-2.5 rounded-xl text-xs transition shadow-md shadow-sky-600/20 flex items-center justify-center gap-1.5">Download PNG Badge</button>
+                            <button onclick="window.print()" class="flex-1 bg-slate-800 dark:bg-deepblue-950 hover:bg-slate-700 dark:hover:bg-deepblue-800 text-white font-medium py-2.5 rounded-xl text-xs transition shadow-md border border-slate-700 dark:border-blue-900/60 flex items-center justify-center gap-1.5">Print Pass</button>
                         </div>
                     </div>
-                    <div id="pass-actions" class="flex gap-3 w-full max-w-sm mt-4 hidden">
-                        <button onclick="downloadPassPNG()" class="flex-1 bg-sky-600 hover:bg-sky-500 text-white font-medium py-2.5 rounded-xl text-xs transition shadow-md shadow-sky-600/20 flex items-center justify-center gap-1.5">Download PNG Badge</button>
-                        <button onclick="window.print()" class="flex-1 bg-slate-800 dark:bg-deepblue-950 hover:bg-slate-700 dark:hover:bg-deepblue-800 text-white font-medium py-2.5 rounded-xl text-xs transition shadow-md border border-slate-700 dark:border-blue-900/60 flex items-center justify-center gap-1.5">Print Pass</button>
-                    </div>
                 </div>
-            </div>
-        </section>
+            </section>
 
-        <section id="tab-supervisor" class="hidden space-y-6">
-            <div class="bg-white dark:bg-deepblue-900 rounded-3xl shadow-xl p-6 border border-slate-200 dark:border-blue-900/45">
-                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6 pb-4 border-b border-slate-100 dark:border-blue-900/36">
-                    <div>
-                        <h2 class="text-base font-bold text-slate-900 dark:text-white">Supervisor Approval Dashboard</h2>
-                        <p class="text-xs text-slate-500 dark:text-slate-400">Review and verify initial ferry pass requests.</p>
-                    </div>
-                    <button onclick="loadPassesFromFirebase()" class="bg-slate-100 dark:bg-deepblue-950 hover:bg-slate-200 dark:hover:bg-deepblue-800 text-slate-700 dark:text-slate-300 text-xs font-medium px-3.5 py-2 rounded-xl transition border border-slate-200 dark:border-blue-900/60">Refresh List</button>
-                </div>
-                <div class="overflow-x-auto border border-slate-200 dark:border-blue-900/40 rounded-2xl shadow-inner">
-                    <table class="w-full text-left border-collapse text-xs">
-                        <thead>
-                            <tr class="bg-slate-50 dark:bg-deepblue-950 text-slate-600 dark:text-slate-300 font-semibold border-b border-slate-200 dark:border-blue-900/40">
-                                <th class="p-3.5">Pass ID</th>
-                                <th class="p-3.5">Employee Name</th>
-                                <th class="p-3.5">Emp ID</th>
-                                <th class="p-3.5">Department</th>
-                                <th class="p-3.5">Route & Vessel</th>
-                                <th class="p-3.5">Travel Date & Time</th>
-                                <th class="p-3.5 text-center">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="supervisor-table-body" class="divide-y divide-slate-100 dark:divide-blue-900/30">
-                            <tr><td colspan="7" class="p-6 text-center text-slate-500 dark:text-slate-400">Loading pending supervisor approvals...</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </section>
-
-        <section id="tab-hod" class="hidden space-y-6">
-            <div class="bg-white dark:bg-deepblue-900 rounded-3xl shadow-xl p-6 border border-slate-200 dark:border-blue-900/45">
-                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6 pb-4 border-b border-slate-100 dark:border-blue-900/36">
-                    <div>
-                        <h2 class="text-base font-bold text-slate-900 dark:text-white">HOD Pass Approval Dashboard</h2>
-                        <p class="text-xs text-slate-500 dark:text-slate-400">Review supervisor-approved pass requests prior to HR verification.</p>
-                    </div>
-                    <button onclick="loadPassesFromFirebase()" class="bg-slate-100 dark:bg-deepblue-950 hover:bg-slate-200 dark:hover:bg-deepblue-800 text-slate-700 dark:text-slate-300 text-xs font-medium px-3.5 py-2 rounded-xl transition border border-slate-200 dark:border-blue-900/60">Refresh List</button>
-                </div>
-                <div class="overflow-x-auto border border-slate-200 dark:border-blue-900/40 rounded-2xl shadow-inner">
-                    <table class="w-full text-left border-collapse text-xs">
-                        <thead>
-                            <tr class="bg-slate-50 dark:bg-deepblue-950 text-slate-600 dark:text-slate-300 font-semibold border-b border-slate-200 dark:border-blue-900/40">
-                                <th class="p-3.5">Pass ID</th>
-                                <th class="p-3.5">Employee Name</th>
-                                <th class="p-3.5">Emp ID</th>
-                                <th class="p-3.5">Department</th>
-                                <th class="p-3.5">Route & Vessel</th>
-                                <th class="p-3.5">Travel Date & Time</th>
-                                <th class="p-3.5 text-center">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="hod-table-body" class="divide-y divide-slate-100 dark:divide-blue-900/30">
-                            <tr><td colspan="7" class="p-6 text-center text-slate-500 dark:text-slate-400">Loading pending HOD approvals...</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </section>
-
-        <section id="tab-hr" class="hidden space-y-6">
-            <div class="bg-white dark:bg-deepblue-900 rounded-3xl shadow-xl p-6 border border-slate-200 dark:border-blue-900/45">
-                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6 pb-4 border-b border-slate-100 dark:border-blue-900/36">
-                    <div>
-                        <h2 class="text-base font-bold text-slate-900 dark:text-white">HR Records & Vessel Passenger Rosters</h2>
-                        <p class="text-xs text-slate-500 dark:text-slate-400">Verify passes, manage denials, monitor active rosters, delete passes, and export records.</p>
-                    </div>
-                    <div class="flex flex-wrap gap-2 w-full md:w-auto">
-                        <button onclick="exportToExcel()" class="bg-sky-600 hover:bg-sky-500 text-white text-xs font-medium px-4 py-2 rounded-xl transition shadow-md shadow-sky-600/20">Export to Excel (.xlsx)</button>
-                        <button onclick="refreshHRTable()" class="bg-slate-100 dark:bg-deepblue-950 hover:bg-slate-200 dark:hover:bg-deepblue-800 text-slate-700 dark:text-slate-300 text-xs font-medium px-3.5 py-2 rounded-xl transition border border-slate-200 dark:border-blue-900/60">Refresh</button>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-                    <div>
-                        <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">Filter by Vessel</label>
-                        <select id="filter-vessel" onchange="renderHRTable()" class="w-full px-3.5 py-2.5 border border-slate-200 dark:border-blue-900/60 rounded-xl text-xs bg-white dark:bg-deepblue-950 text-slate-900 dark:text-white">
-                            <option value="">All Vessels</option>
-                            <option value="MIFCO Express 01">MIFCO Express 01</option>
-                            <option value="Kooddoo Carrier 03">Kooddoo Carrier 03</option>
-                            <option value="Fishermen Ferry 05">Fishermen Ferry 05</option>
-                            <option value="Atoll Voyager 02">Atoll Voyager 02</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">Filter by Date</label>
-                        <input type="date" id="filter-date" onchange="renderHRTable()" class="w-full px-3.5 py-2.5 border border-slate-200 dark:border-blue-900/60 rounded-xl text-xs bg-white dark:bg-deepblue-950 text-slate-900 dark:text-white">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">Search Employee / ID</label>
-                        <input type="text" id="filter-search" oninput="renderHRTable()" placeholder="Search name or ID..." class="w-full px-3.5 py-2.5 border border-slate-200 dark:border-blue-900/60 rounded-xl text-xs bg-white dark:bg-deepblue-950 text-slate-900 dark:text-white placeholder-slate-400">
-                    </div>
-                </div>
-
-                <div class="overflow-x-auto border border-slate-200 dark:border-blue-900/40 rounded-2xl shadow-inner">
-                    <table class="w-full text-left border-collapse text-xs">
-                        <thead>
-                            <tr class="bg-slate-50 dark:bg-deepblue-950 text-slate-600 dark:text-slate-300 font-semibold border-b border-slate-200 dark:border-blue-900/40">
-                                <th class="p-3.5">Pass ID</th>
-                                <th class="p-3.5">Employee Name</th>
-                                <th class="p-3.5">Emp ID</th>
-                                <th class="p-3.5">Department</th>
-                                <th class="p-3.5">Route & Vessel</th>
-                                <th class="p-3.5">Travel Date & Time</th>
-                                <th class="p-3.5">Issued Time</th>
-                                <th class="p-3.5 text-center">Status / HR Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="passes-table-body" class="divide-y divide-slate-100 dark:divide-blue-900/30">
-                            <tr><td colspan="8" class="p-6 text-center text-slate-500 dark:text-slate-400">Loading passes from Firebase...</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </section>
-
-        <section id="tab-common-status" class="hidden space-y-6">
-            <div class="bg-gradient-to-br from-deepblue-950 via-deepblue-900 to-deepblue-950 rounded-3xl shadow-2xl p-6 md:p-8 border border-blue-900/40 text-white relative overflow-hidden capsule-shimmer">
-                <div class="absolute -right-20 -top-20 w-80 h-80 bg-sky-600/15 rounded-full blur-3xl pointer-events-none animate-pulse-glow"></div>
-                <div class="absolute -left-20 -bottom-20 w-80 h-80 bg-cyan-500/15 rounded-full blur-3xl pointer-events-none"></div>
-                
-                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8 pb-5 border-b border-blue-900/50 relative z-10">
-                    <div>
-                        <span id="network-status-badge" class="text-[10px] font-mono tracking-widest uppercase bg-emerald-500/20 text-emerald-300 px-3 py-1 rounded-full border border-emerald-500/30 mb-2 inline-flex items-center gap-1.5"><span id="network-dot" class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>Online</span>
-                        <h2 class="text-xl font-bold tracking-tight text-white flex items-center gap-2.5">Live Staff Boarding Update</h2>
-                        <p class="text-xs text-slate-300 mt-1">This is a live staff ferry transport update of Kooddoo.</p>
-                    </div>
-                    <div class="flex gap-3 w-full md:w-auto">
-                        <input type="text" id="common-status-search" oninput="renderCommonStatusTracker()" placeholder="Filter employee or ID..." class="px-4 py-2.5 bg-deepblue-950/90 border border-blue-900/70 rounded-2xl text-xs text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-500 backdrop-blur-md shadow-inner">
-                        <button onclick="refreshCommonStatusTracker()" class="bg-sky-600 hover:bg-sky-500 text-white text-xs font-medium px-4 py-2.5 rounded-2xl transition shadow-lg shadow-sky-600/30">Refresh</button>
-                    </div>
-                </div>
-
-                <div id="common-status-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 perspective-container relative z-10"></div>
-            </div>
-        </section>
-
-        <section id="tab-scanner" class="hidden space-y-6">
-            <div class="bg-white dark:bg-deepblue-900 rounded-3xl shadow-xl p-6 border border-slate-200 dark:border-blue-900/45 max-w-2xl mx-auto">
-                <h2 class="text-base font-bold text-slate-900 dark:text-white mb-1">Captain / Driver Pass Verification</h2>
-                <p class="text-xs text-slate-500 dark:text-slate-400 mb-6">Type Pass ID, take a live photo of the QR code, or upload a saved image to verify clearance.</p>
-                
-                <div class="flex gap-2.5 mb-4">
-                    <input type="text" id="scanner-input" placeholder="Enter Pass ID (e.g. MKF-XXXXXX)" class="flex-grow px-4 py-3 border border-slate-200 dark:border-blue-900/60 rounded-xl focus:ring-2 focus:ring-sky-500 focus:outline-none font-mono text-xs uppercase bg-slate-50 dark:bg-deepblue-950 text-slate-900 dark:text-white">
-                    <button onclick="handleScan()" class="bg-sky-600 hover:bg-sky-500 text-white font-medium px-6 py-3 rounded-xl transition text-xs shadow-md shadow-sky-600/20">Verify Pass</button>
-                </div>
-
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
-                    <label class="bg-sky-600 hover:bg-sky-500 text-white text-xs font-medium py-3.5 px-4 rounded-xl transition flex items-center justify-center gap-2 shadow-md shadow-sky-600/20 cursor-pointer text-center">
-                        Take Live Photo of QR Code
-                        <input type="file" accept="image/*" capture="environment" class="hidden" onchange="scanQRFromFile(event)">
-                    </label>
-                    <label class="bg-slate-800 dark:bg-deepblue-950 hover:bg-slate-700 dark:hover:bg-deepblue-800 text-white text-xs font-medium py-3.5 px-4 rounded-xl transition flex items-center justify-center gap-2 shadow-md border border-slate-700 dark:border-blue-900/60 cursor-pointer text-center">
-                        Upload QR Image from File
-                        <input type="file" accept="image/*" class="hidden" onchange="scanQRFromFile(event)">
-                    </label>
-                </div>
-                <div id="reader" class="hidden"></div>
-                <div id="scan-result" class="hidden border border-slate-200 dark:border-blue-900/40 rounded-2xl p-5 bg-slate-50 dark:bg-deepblue-950"></div>
-            </div>
-        </section>
-
-        <section id="tab-admin" class="hidden space-y-6">
-            <div class="bg-white dark:bg-deepblue-900 rounded-3xl shadow-xl p-6 border border-slate-200 dark:border-blue-900/45 max-w-4xl mx-auto space-y-8">
-                <div class="flex justify-between items-center pb-4 border-b border-slate-100 dark:border-blue-900/36">
-                    <div>
-                        <h2 class="text-base font-bold text-slate-900 dark:text-white">Admin Dashboard</h2>
-                        <p class="text-xs text-slate-500 dark:text-slate-400">Manage system users, reset passwords, publish announcements, and perform manual pass entries.</p>
-                    </div>
-                </div>
-
-                <div class="bg-slate-50 dark:bg-deepblue-950 p-5 rounded-2xl border border-slate-200 dark:border-blue-900/60 space-y-4 shadow-inner">
-                    <h3 class="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider flex items-center gap-2">
-                        <span class="w-2 h-2 rounded-full bg-sky-500 animate-pulse"></span>
-                        Admin Manual Pass Entry (Direct Issuance)
-                    </h3>
-                    <form id="admin-manual-ticket-form" class="space-y-4">
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
-                                <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">Employee ID *</label>
-                                <input type="text" id="admin-emp-id" required maxlength="6" placeholder="e.g. 101758" class="w-full px-3.5 py-2.5 bg-white dark:bg-deepblue-900 border border-slate-200 dark:border-blue-900/60 rounded-xl text-xs text-slate-900 dark:text-white font-mono">
-                            </div>
-                            <div>
-                                <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">Employee Full Name *</label>
-                                <input type="text" id="admin-emp-name" required placeholder="e.g. Mohamed Ahmed" class="w-full px-3.5 py-2.5 bg-white dark:bg-deepblue-900 border border-slate-200 dark:border-blue-900/60 rounded-xl text-xs text-slate-900 dark:text-white">
-                            </div>
-                        </div>
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <div>
-                                <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">Department</label>
-                                <input type="text" id="admin-emp-dept" placeholder="e.g. Production" class="w-full px-3.5 py-2.5 bg-white dark:bg-deepblue-900 border border-slate-200 dark:border-blue-900/60 rounded-xl text-xs text-slate-900 dark:text-white">
-                            </div>
-                            <div>
-                                <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">Travel Date *</label>
-                                <input type="date" id="admin-travel-date" required class="w-full px-3.5 py-2.5 bg-white dark:bg-deepblue-900 border border-slate-200 dark:border-blue-900/60 rounded-xl text-xs text-slate-900 dark:text-white">
-                            </div>
-                            <div>
-                                <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">Travel Time *</label>
-                                <input type="time" id="admin-travel-time" required value="08:00" class="w-full px-3.5 py-2.5 bg-white dark:bg-deepblue-900 border border-slate-200 dark:border-blue-900/60 rounded-xl text-xs text-slate-900 dark:text-white font-mono">
-                            </div>
-                        </div>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
-                                <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">Destination Route *</label>
-                                <select id="admin-route-dest" required class="w-full px-3.5 py-2.5 bg-white dark:bg-deepblue-900 border border-slate-200 dark:border-blue-900/60 rounded-xl text-xs text-slate-900 dark:text-white">
-                                    <option value="Kooddoo Jetty - Vilingili Route">Kooddoo Jetty ⇄ Vilingili</option>
-                                    <option value="Kooddoo Jetty - Nilandhoo Route">Kooddoo Jetty ⇄ Nilandhoo</option>
-                                    <option value="Kooddoo Jetty - Gemanafushi Route">Kooddoo Jetty ⇄ Gemanafushi</option>
-                                    <option value="Kooddoo Jetty - Maamendhoo Route">Kooddoo Jetty ⇄ Maamendhoo</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">Assigned Vessel *</label>
-                                <select id="admin-vessel-name" required class="w-full px-3.5 py-2.5 bg-white dark:bg-deepblue-900 border border-slate-200 dark:border-blue-900/60 rounded-xl text-xs text-slate-900 dark:text-white">
-                                    <option value="MIFCO Express 01">MIFCO Express 01</option>
-                                    <option value="Kooddoo Carrier 03">Kooddoo Carrier 03</option>
-                                    <option value="Fishermen Ferry 05">Fishermen Ferry 05</option>
-                                    <option value="Atoll Voyager 02">Atoll Voyager 02</option>
-                                </select>
-                            </div>
-                        </div>
-                        <button type="submit" class="bg-sky-600 hover:bg-sky-500 text-white font-medium px-4 py-2.5 rounded-xl text-xs transition shadow-md shadow-sky-600/20">Manually Issue & Approve Pass</button>
-                    </form>
-                </div>
-
-                <div class="bg-slate-50 dark:bg-deepblue-950 p-5 rounded-2xl border border-slate-200 dark:border-blue-900/60 space-y-4 shadow-inner">
-                    <h3 class="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider flex items-center gap-2">
-                        <span class="w-2 h-2 rounded-full bg-sky-500 animate-pulse"></span>
-                        Publish Live Scrolling Announcement
-                    </h3>
-                    <div>
-                        <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">Announcement Text *</label>
-                        <input type="text" id="admin-announcement-input" placeholder="e.g. Ferry 01 delayed by 15 minutes due to weather conditions..." class="w-full px-3.5 py-2.5 border border-slate-200 dark:border-blue-900/60 rounded-xl text-xs bg-white dark:bg-deepblue-900 text-slate-900 dark:text-white">
-                    </div>
-                    <button onclick="updateAnnouncement()" class="bg-sky-600 hover:bg-sky-500 text-white font-medium px-4 py-2.5 rounded-xl text-xs transition shadow-md shadow-sky-600/20">Update Live Announcement</button>
-                </div>
-
-                <form id="create-user-form" class="bg-slate-50 dark:bg-deepblue-950 p-5 rounded-2xl border border-slate-200 dark:border-blue-900/60 space-y-4 shadow-inner">
-                    <h3 class="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">Create New System User</h3>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <section id="tab-supervisor" class="hidden space-y-6">
+                <div class="bg-white dark:bg-deepblue-900 rounded-3xl shadow-xl p-6 border border-slate-200 dark:border-blue-900/45">
+                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6 pb-4 border-b border-slate-100 dark:border-blue-900/36">
                         <div>
-                            <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">Username *</label>
-                            <input type="text" id="new-username" required placeholder="e.g. hod_procurement" class="w-full px-3.5 py-2.5 border border-slate-200 dark:border-blue-900/60 rounded-xl text-xs bg-white dark:bg-deepblue-900 text-slate-900 dark:text-white">
+                            <h2 class="text-base font-bold text-slate-900 dark:text-white">Supervisor Approval Dashboard</h2>
+                            <p class="text-xs text-slate-500 dark:text-slate-400">Review and verify initial ferry pass requests.</p>
                         </div>
+                        <button onclick="loadPassesFromFirebase()" class="bg-slate-100 dark:bg-deepblue-950 hover:bg-slate-200 dark:hover:bg-deepblue-800 text-slate-700 dark:text-slate-300 text-xs font-medium px-3.5 py-2 rounded-xl transition border border-slate-200 dark:border-blue-900/60">Refresh List</button>
+                    </div>
+                    <div class="overflow-x-auto border border-slate-200 dark:border-blue-900/40 rounded-2xl shadow-inner">
+                        <table class="w-full text-left border-collapse text-xs">
+                            <thead>
+                                <tr class="bg-slate-50 dark:bg-deepblue-950 text-slate-600 dark:text-slate-300 font-semibold border-b border-slate-200 dark:border-blue-900/40">
+                                    <th class="p-3.5">Pass ID</th>
+                                    <th class="p-3.5">Employee Name</th>
+                                    <th class="p-3.5">Emp ID</th>
+                                    <th class="p-3.5">Department</th>
+                                    <th class="p-3.5">Route & Vessel</th>
+                                    <th class="p-3.5">Travel Date & Time</th>
+                                    <th class="p-3.5 text-center">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="supervisor-table-body" class="divide-y divide-slate-100 dark:divide-blue-900/30">
+                                <tr><td colspan="7" class="p-6 text-center text-slate-500 dark:text-slate-400">Loading pending supervisor approvals...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <section id="tab-hod" class="hidden space-y-6">
+                <div class="bg-white dark:bg-deepblue-900 rounded-3xl shadow-xl p-6 border border-slate-200 dark:border-blue-900/45">
+                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6 pb-4 border-b border-slate-100 dark:border-blue-900/36">
                         <div>
-                            <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">Password *</label>
-                            <input type="password" id="new-password" required placeholder="••••••••" class="w-full px-3.5 py-2.5 border border-slate-200 dark:border-blue-900/60 rounded-xl text-xs bg-white dark:bg-deepblue-900 text-slate-900 dark:text-white">
+                            <h2 class="text-base font-bold text-slate-900 dark:text-white">HOD Pass Approval Dashboard</h2>
+                            <p class="text-xs text-slate-500 dark:text-slate-400">Review supervisor-approved pass requests prior to HR verification.</p>
                         </div>
+                        <button onclick="loadPassesFromFirebase()" class="bg-slate-100 dark:bg-deepblue-950 hover:bg-slate-200 dark:hover:bg-deepblue-800 text-slate-700 dark:text-slate-300 text-xs font-medium px-3.5 py-2 rounded-xl transition border border-slate-200 dark:border-blue-900/60">Refresh List</button>
+                    </div>
+                    <div class="overflow-x-auto border border-slate-200 dark:border-blue-900/40 rounded-2xl shadow-inner">
+                        <table class="w-full text-left border-collapse text-xs">
+                            <thead>
+                                <tr class="bg-slate-50 dark:bg-deepblue-950 text-slate-600 dark:text-slate-300 font-semibold border-b border-slate-200 dark:border-blue-900/40">
+                                    <th class="p-3.5">Pass ID</th>
+                                    <th class="p-3.5">Employee Name</th>
+                                    <th class="p-3.5">Emp ID</th>
+                                    <th class="p-3.5">Department</th>
+                                    <th class="p-3.5">Route & Vessel</th>
+                                    <th class="p-3.5">Travel Date & Time</th>
+                                    <th class="p-3.5 text-center">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="hod-table-body" class="divide-y divide-slate-100 dark:divide-blue-900/30">
+                                <tr><td colspan="7" class="p-6 text-center text-slate-500 dark:text-slate-400">Loading pending HOD approvals...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <section id="tab-hr" class="hidden space-y-6">
+                <div class="bg-white dark:bg-deepblue-900 rounded-3xl shadow-xl p-6 border border-slate-200 dark:border-blue-900/45">
+                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6 pb-4 border-b border-slate-100 dark:border-blue-900/36">
                         <div>
-                            <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">Assigned Role *</label>
-                            <select id="new-role" required class="w-full px-3.5 py-2.5 border border-slate-200 dark:border-blue-900/60 rounded-xl text-xs bg-white dark:bg-deepblue-900 text-slate-900 dark:text-white">
-                                <option value="hr">HR (Ticketing & Records)</option>
-                                <option value="supervisor">Supervisor (Approvals)</option>
-                                <option value="hod">HOD (Approvals)</option>
-                                <option value="captain">Captain / Driver (Scanner)</option>
-                                <option value="admin">Administrator</option>
+                            <h2 class="text-base font-bold text-slate-900 dark:text-white">HR Records & Vessel Passenger Rosters</h2>
+                            <p class="text-xs text-slate-500 dark:text-slate-400">Verify passes, manage denials, monitor active rosters, delete passes, and export records.</p>
+                        </div>
+                        <div class="flex flex-wrap gap-2 w-full md:w-auto">
+                            <button onclick="exportToExcel()" class="bg-sky-600 hover:bg-sky-500 text-white text-xs font-medium px-4 py-2 rounded-xl transition shadow-md shadow-sky-600/20">Export to Excel (.xlsx)</button>
+                            <button onclick="refreshHRTable()" class="bg-slate-100 dark:bg-deepblue-950 hover:bg-slate-200 dark:hover:bg-deepblue-800 text-slate-700 dark:text-slate-300 text-xs font-medium px-3.5 py-2 rounded-xl transition border border-slate-200 dark:border-blue-900/60">Refresh</button>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+                        <div>
+                            <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">Filter by Vessel</label>
+                            <select id="filter-vessel" onchange="renderHRTable()" class="w-full px-3.5 py-2.5 border border-slate-200 dark:border-blue-900/60 rounded-xl text-xs bg-white dark:bg-deepblue-950 text-slate-900 dark:text-white">
+                                <option value="">All Vessels</option>
+                                <option value="MIFCO Express 01">MIFCO Express 01</option>
+                                <option value="Kooddoo Carrier 03">Kooddoo Carrier 03</option>
+                                <option value="Fishermen Ferry 05">Fishermen Ferry 05</option>
+                                <option value="Atoll Voyager 02">Atoll Voyager 02</option>
                             </select>
                         </div>
+                        <div>
+                            <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">Filter by Date</label>
+                            <input type="date" id="filter-date" onchange="renderHRTable()" class="w-full px-3.5 py-2.5 border border-slate-200 dark:border-blue-900/60 rounded-xl text-xs bg-white dark:bg-deepblue-950 text-slate-900 dark:text-white">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">Search Employee / ID</label>
+                            <input type="text" id="filter-search" oninput="renderHRTable()" placeholder="Search name or ID..." class="w-full px-3.5 py-2.5 border border-slate-200 dark:border-blue-900/60 rounded-xl text-xs bg-white dark:bg-deepblue-950 text-slate-900 dark:text-white placeholder-slate-400">
+                        </div>
                     </div>
-                    <button type="submit" class="bg-sky-600 hover:bg-sky-500 text-white font-medium px-4 py-2.5 rounded-xl text-xs transition shadow-md shadow-sky-600/20">Create User Account</button>
-                </form>
 
-                <h3 class="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider mb-2">Existing System Users</h3>
-                <div class="overflow-x-auto border border-slate-200 dark:border-blue-900/40 rounded-2xl shadow-inner">
-                    <table class="w-full text-left border-collapse text-xs">
-                        <thead>
-                            <tr class="bg-slate-50 dark:bg-deepblue-950 text-slate-600 dark:text-slate-300 font-semibold border-b border-slate-200 dark:border-blue-900/40">
-                                <th class="p-3.5">Username</th>
-                                <th class="p-3.5">Role</th>
-                                <th class="p-3.5 text-center">Reset Password</th>
-                                <th class="p-3.5 text-center">Action</th>
-                            </tr>
-                        </thead>
-                        <tbody id="users-table-body" class="divide-y divide-slate-100 dark:divide-blue-900/30">
-                            <tr><td colspan="4" class="p-6 text-center text-slate-500 dark:text-slate-400">Loading users...</td></tr>
-                        </tbody>
-                    </table>
+                    <div class="overflow-x-auto border border-slate-200 dark:border-blue-900/40 rounded-2xl shadow-inner">
+                        <table class="w-full text-left border-collapse text-xs">
+                            <thead>
+                                <tr class="bg-slate-50 dark:bg-deepblue-950 text-slate-600 dark:text-slate-300 font-semibold border-b border-slate-200 dark:border-blue-900/40">
+                                    <th class="p-3.5">Pass ID</th>
+                                    <th class="p-3.5">Employee Name</th>
+                                    <th class="p-3.5">Emp ID</th>
+                                    <th class="p-3.5">Department</th>
+                                    <th class="p-3.5">Route & Vessel</th>
+                                    <th class="p-3.5">Travel Date & Time</th>
+                                    <th class="p-3.5">Issued Time</th>
+                                    <th class="p-3.5 text-center">Status / HR Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="passes-table-body" class="divide-y divide-slate-100 dark:divide-blue-900/30">
+                                <tr><td colspan="8" class="p-6 text-center text-slate-500 dark:text-slate-400">Loading passes from Firebase...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
-            </div>
-        </section>
-    </main>
+            </section>
+
+            <section id="tab-common-status" class="hidden space-y-6">
+                <div class="bg-gradient-to-br from-deepblue-950 via-deepblue-900 to-deepblue-950 rounded-3xl shadow-2xl p-6 md:p-8 border border-blue-900/40 text-white relative overflow-hidden capsule-shimmer">
+                    <div class="absolute -right-20 -top-20 w-80 h-80 bg-sky-600/15 rounded-full blur-3xl pointer-events-none animate-pulse-glow"></div>
+                    <div class="absolute -left-20 -bottom-20 w-80 h-80 bg-cyan-500/15 rounded-full blur-3xl pointer-events-none"></div>
+                    
+                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8 pb-5 border-b border-blue-900/50 relative z-10">
+                        <div>
+                            <span id="network-status-badge" class="text-[10px] font-mono tracking-widest uppercase bg-emerald-500/20 text-emerald-300 px-3 py-1 rounded-full border border-emerald-500/30 mb-2 inline-flex items-center gap-1.5"><span id="network-dot" class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>Online</span>
+                            <h2 class="text-xl font-bold tracking-tight text-white flex items-center gap-2.5">Live Staff Boarding Update</h2>
+                            <p class="text-xs text-slate-300 mt-1">This is a live staff ferry transport update of Kooddoo.</p>
+                        </div>
+                        <div class="flex gap-3 w-full md:w-auto">
+                            <input type="text" id="common-status-search" oninput="renderCommonStatusTracker()" placeholder="Filter employee or ID..." class="px-4 py-2.5 bg-deepblue-950/90 border border-blue-900/70 rounded-2xl text-xs text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-500 backdrop-blur-md shadow-inner">
+                            <button onclick="refreshCommonStatusTracker()" class="bg-sky-600 hover:bg-sky-500 text-white text-xs font-medium px-4 py-2.5 rounded-2xl transition shadow-lg shadow-sky-600/30">Refresh</button>
+                        </div>
+                    </div>
+
+                    <div id="common-status-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 perspective-container relative z-10"></div>
+                </div>
+            </section>
+
+            <section id="tab-scanner" class="hidden space-y-6">
+                <div class="bg-white dark:bg-deepblue-900 rounded-3xl shadow-xl p-6 border border-slate-200 dark:border-blue-900/45 max-w-2xl mx-auto">
+                    <h2 class="text-base font-bold text-slate-900 dark:text-white mb-1">Captain / Driver Pass Verification</h2>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mb-6">Type Pass ID, take a live photo of the QR code, or upload a saved image to verify clearance.</p>
+                    
+                    <div class="flex gap-2.5 mb-4">
+                        <input type="text" id="scanner-input" placeholder="Enter Pass ID (e.g. MKF-XXXXXX)" class="flex-grow px-4 py-3 border border-slate-200 dark:border-blue-900/60 rounded-xl focus:ring-2 focus:ring-sky-500 focus:outline-none font-mono text-xs uppercase bg-slate-50 dark:bg-deepblue-950 text-slate-900 dark:text-white">
+                        <button onclick="handleScan()" class="bg-sky-600 hover:bg-sky-500 text-white font-medium px-6 py-3 rounded-xl transition text-xs shadow-md shadow-sky-600/20">Verify Pass</button>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
+                        <label class="bg-sky-600 hover:bg-sky-500 text-white text-xs font-medium py-3.5 px-4 rounded-xl transition flex items-center justify-center gap-2 shadow-md shadow-sky-600/20 cursor-pointer text-center">
+                            Take Live Photo of QR Code
+                            <input type="file" accept="image/*" capture="environment" class="hidden" onchange="scanQRFromFile(event)">
+                        </label>
+                        <label class="bg-slate-800 dark:bg-deepblue-950 hover:bg-slate-700 dark:hover:bg-deepblue-800 text-white text-xs font-medium py-3.5 px-4 rounded-xl transition flex items-center justify-center gap-2 shadow-md border border-slate-700 dark:border-blue-900/60 cursor-pointer text-center">
+                            Upload QR Image from File
+                            <input type="file" accept="image/*" class="hidden" onchange="scanQRFromFile(event)">
+                        </label>
+                    </div>
+                    <div id="reader" class="hidden"></div>
+                    <div id="scan-result" class="hidden border border-slate-200 dark:border-blue-900/40 rounded-2xl p-5 bg-slate-50 dark:bg-deepblue-950"></div>
+                </div>
+            </section>
+
+            <section id="tab-admin" class="hidden space-y-6">
+                <div class="bg-white dark:bg-deepblue-900 rounded-3xl shadow-xl p-6 border border-slate-200 dark:border-blue-900/45 max-w-4xl mx-auto space-y-8">
+                    <div class="flex justify-between items-center pb-4 border-b border-slate-100 dark:border-blue-900/36">
+                        <div>
+                            <h2 class="text-base font-bold text-slate-900 dark:text-white">Admin Dashboard</h2>
+                            <p class="text-xs text-slate-500 dark:text-slate-400">Manage system users, reset passwords, publish announcements, and perform manual pass entries.</p>
+                        </div>
+                    </div>
+
+                    <!-- Clear Passes by Specific Month -->
+                    <div class="bg-slate-50 dark:bg-deepblue-950 p-5 rounded-2xl border border-slate-200 dark:border-blue-900/60 space-y-4 shadow-inner">
+                        <h3 class="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider flex items-center gap-2">
+                            <span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
+                            Bulk Clear Passes for Specific Month
+                        </h3>
+                        <p class="text-[11px] text-slate-500 dark:text-slate-400">Select a month and year to permanently clear/delete all passes issued or scheduled for that specific month.</p>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">Select Month *</label>
+                                <input type="month" id="admin-clear-month" class="w-full px-3.5 py-2.5 bg-white dark:bg-deepblue-900 border border-slate-200 dark:border-blue-900/60 rounded-xl text-xs text-slate-900 dark:text-white">
+                            </div>
+                            <div class="flex items-end">
+                                <button onclick="adminClearPassesByMonth()" class="w-full bg-red-600 hover:bg-red-500 text-white font-medium px-4 py-2.5 rounded-xl text-xs transition shadow-md shadow-red-600/20">Clear Passes for Selected Month</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-50 dark:bg-deepblue-950 p-5 rounded-2xl border border-slate-200 dark:border-blue-900/60 space-y-4 shadow-inner">
+                        <h3 class="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider flex items-center gap-2">
+                            <span class="w-2 h-2 rounded-full bg-sky-500 animate-pulse"></span>
+                            Admin Manual Pass Entry (Direct Issuance)
+                        </h3>
+                        <form id="admin-manual-ticket-form" class="space-y-4">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">Employee ID *</label>
+                                    <input type="text" id="admin-emp-id" required maxlength="6" placeholder="e.g. 101758" class="w-full px-3.5 py-2.5 bg-white dark:bg-deepblue-900 border border-slate-200 dark:border-blue-900/60 rounded-xl text-xs text-slate-900 dark:text-white font-mono">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">Employee Full Name *</label>
+                                    <input type="text" id="admin-emp-name" required placeholder="e.g. Mohamed Ahmed" class="w-full px-3.5 py-2.5 bg-white dark:bg-deepblue-900 border border-slate-200 dark:border-blue-900/60 rounded-xl text-xs text-slate-900 dark:text-white">
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <div>
+                                    <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">Department</label>
+                                    <input type="text" id="admin-emp-dept" placeholder="e.g. Production" class="w-full px-3.5 py-2.5 bg-white dark:bg-deepblue-900 border border-slate-200 dark:border-blue-900/60 rounded-xl text-xs text-slate-900 dark:text-white">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">Travel Date *</label>
+                                    <input type="date" id="admin-travel-date" required class="w-full px-3.5 py-2.5 bg-white dark:bg-deepblue-900 border border-slate-200 dark:border-blue-900/60 rounded-xl text-xs text-slate-900 dark:text-white">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">Travel Time *</label>
+                                    <input type="time" id="admin-travel-time" required value="08:00" class="w-full px-3.5 py-2.5 bg-white dark:bg-deepblue-900 border border-slate-200 dark:border-blue-900/60 rounded-xl text-xs text-slate-900 dark:text-white font-mono">
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">Destination Route *</label>
+                                    <select id="admin-route-dest" required class="w-full px-3.5 py-2.5 bg-white dark:bg-deepblue-900 border border-slate-200 dark:border-blue-900/60 rounded-xl text-xs text-slate-900 dark:text-white">
+                                        <option value="Kooddoo Jetty - Vilingili Route">Kooddoo Jetty ⇄ Vilingili</option>
+                                        <option value="Kooddoo Jetty - Nilandhoo Route">Kooddoo Jetty ⇄ Nilandhoo</option>
+                                        <option value="Kooddoo Jetty - Gemanafushi Route">Kooddoo Jetty ⇄ Gemanafushi</option>
+                                        <option value="Kooddoo Jetty - Maamendhoo Route">Kooddoo Jetty ⇄ Maamendhoo</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">Assigned Vessel *</label>
+                                    <select id="admin-vessel-name" required class="w-full px-3.5 py-2.5 bg-white dark:bg-deepblue-900 border border-slate-200 dark:border-blue-900/60 rounded-xl text-xs text-slate-900 dark:text-white">
+                                        <option value="MIFCO Express 01">MIFCO Express 01</option>
+                                        <option value="Kooddoo Carrier 03">Kooddoo Carrier 03</option>
+                                        <option value="Fishermen Ferry 05">Fishermen Ferry 05</option>
+                                        <option value="Atoll Voyager 02">Atoll Voyager 02</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <button type="submit" class="bg-sky-600 hover:bg-sky-500 text-white font-medium px-4 py-2.5 rounded-xl text-xs transition shadow-md shadow-sky-600/20">Manually Issue & Approve Pass</button>
+                        </form>
+                    </div>
+
+                    <div class="bg-slate-50 dark:bg-deepblue-950 p-5 rounded-2xl border border-slate-200 dark:border-blue-900/60 space-y-4 shadow-inner">
+                        <h3 class="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider flex items-center gap-2">
+                            <span class="w-2 h-2 rounded-full bg-sky-500 animate-pulse"></span>
+                            Publish Live Scrolling Announcement
+                        </h3>
+                        <div>
+                            <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">Announcement Text *</label>
+                            <input type="text" id="admin-announcement-input" placeholder="e.g. Ferry 01 delayed by 15 minutes due to weather conditions..." class="w-full px-3.5 py-2.5 border border-slate-200 dark:border-blue-900/60 rounded-xl text-xs bg-white dark:bg-deepblue-900 text-slate-900 dark:text-white">
+                        </div>
+                        <button onclick="updateAnnouncement()" class="bg-sky-600 hover:bg-sky-500 text-white font-medium px-4 py-2.5 rounded-xl text-xs transition shadow-md shadow-sky-600/20">Update Live Announcement</button>
+                    </div>
+
+                    <form id="create-user-form" class="bg-slate-50 dark:bg-deepblue-950 p-5 rounded-2xl border border-slate-200 dark:border-blue-900/60 space-y-4 shadow-inner">
+                        <h3 class="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">Create New System User</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div>
+                                <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">Username *</label>
+                                <input type="text" id="new-username" required placeholder="e.g. hod_procurement" class="w-full px-3.5 py-2.5 border border-slate-200 dark:border-blue-900/60 rounded-xl text-xs bg-white dark:bg-deepblue-900 text-slate-900 dark:text-white">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">Password *</label>
+                                <input type="password" id="new-password" required placeholder="••••••••" class="w-full px-3.5 py-2.5 border border-slate-200 dark:border-blue-900/60 rounded-xl text-xs bg-white dark:bg-deepblue-900 text-slate-900 dark:text-white">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">Assigned Role *</label>
+                                <select id="new-role" required class="w-full px-3.5 py-2.5 border border-slate-200 dark:border-blue-900/60 rounded-xl text-xs bg-white dark:bg-deepblue-900 text-slate-900 dark:text-white">
+                                    <option value="hr">HR (Ticketing & Records)</option>
+                                    <option value="supervisor">Supervisor (Approvals)</option>
+                                    <option value="hod">HOD (Approvals)</option>
+                                    <option value="captain">Captain / Driver (Scanner)</option>
+                                    <option value="admin">Administrator</option>
+                                </select>
+                            </div>
+                        </div>
+                        <button type="submit" class="bg-sky-600 hover:bg-sky-500 text-white font-medium px-4 py-2.5 rounded-xl text-xs transition shadow-md shadow-sky-600/20">Create User Account</button>
+                    </form>
+
+                    <h3 class="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider mb-2">Existing System Users</h3>
+                    <div class="overflow-x-auto border border-slate-200 dark:border-blue-900/40 rounded-2xl shadow-inner">
+                        <table class="w-full text-left border-collapse text-xs">
+                            <thead>
+                                <tr class="bg-slate-50 dark:bg-deepblue-950 text-slate-600 dark:text-slate-300 font-semibold border-b border-slate-200 dark:border-blue-900/40">
+                                    <th class="p-3.5">Username</th>
+                                    <th class="p-3.5">Role</th>
+                                    <th class="p-3.5 text-center">Reset Password</th>
+                                    <th class="p-3.5 text-center">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="users-table-body" class="divide-y divide-slate-100 dark:divide-blue-900/30">
+                                <tr><td colspan="4" class="p-6 text-center text-slate-500 dark:text-slate-400">Loading users...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+    </div>
 
     <div id="custom-dialog-modal" class="fixed inset-0 bg-slate-950/70 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
         <div class="bg-white dark:bg-deepblue-900 border border-slate-200 dark:border-blue-900/50 text-slate-900 dark:text-white rounded-3xl shadow-2xl max-w-sm w-full p-6 relative flex flex-col items-start space-y-4">
@@ -708,7 +732,6 @@
         </div>
     </div>
 
-    <!-- Professional Copyright Footer -->
     <footer class="bg-white/80 dark:bg-deepblue-950/80 border-t border-slate-200 dark:border-blue-900/40 text-slate-600 dark:text-slate-400 mt-auto py-5 text-center text-xs backdrop-blur-md">
         <p class="font-medium tracking-wide">MIFCO Kooddoo Fisheries Complex &copy; 2026. All rights reserved. &bull; Developed by <span class="text-sky-600 dark:text-sky-400 font-semibold">Shahinth Jeewaratnam</span> (KFC-IT)</p>
     </footer>
@@ -732,19 +755,19 @@
         const passesCollection = collection(db, "passes");
         const usersCollection = collection(db, "system_users");
         const settingsDocRef = doc(db, "system_settings", "announcement");
+        const notificationsDocRef = doc(db, "system_settings", "approval_notifications");
 
         let allPasses = [];
         let allUsers = [];
+        let notificationLogs = [];
         let currentUser = null;
         let currentQRCode = null;
         let activePassDetails = null;
         let modalActivePass = null;
 
-        // In-memory sheet roster cache for zero-lag 0ms lookup speeds
         const sheetCache = new Map();
         const PUBLISHED_GOOGLE_SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRqjgwBdgLWkOxbJ76twZRAzcujzsgpZ-3vXSZP9-e9Uz1MNfXrLCF9U4-yxwoSxCY9kg8xCRKwek8z/pub?output=csv";
 
-        // Pre-fetch Google Sheet once on load for high performance
         async function prefetchGoogleSheetData() {
             if (!PUBLISHED_GOOGLE_SHEET_CSV_URL || PUBLISHED_GOOGLE_SHEET_CSV_URL.includes("YOUR_PUBLISHED_CSV_LINK_HERE")) return;
             try {
@@ -765,7 +788,7 @@
                     }
                 }
             } catch (e) {
-                console.warn("Fast pre-fetch failed, falling back to real-time request:", e);
+                console.warn("Fast pre-fetch failed:", e);
             }
         }
         prefetchGoogleSheetData();
@@ -966,7 +989,7 @@
                     ];
                     for (let u of defaults) { await addDoc(usersCollection, u); }
                 }
-            } catch (err) { console.error("Error seeding default users:", err); }
+            } catch (err) { console.error("Error seeding users:", err); }
         }
 
         async function loadUsers() {
@@ -991,7 +1014,6 @@
                 return;
             }
 
-            // Show 3D Animated Loading Screen with smooth progress bar from 0% to 100%
             const loaderOverlay = document.getElementById('login-loader-overlay');
             const progressBar = document.getElementById('login-progress-bar');
             const progressText = document.getElementById('login-progress-text');
@@ -1001,7 +1023,6 @@
             progressBar.style.width = '0%';
             progressText.innerText = '0%';
 
-            // Smooth progress animation over 1.6 seconds
             const startTime = performance.now();
             const duration = 1600;
 
@@ -1014,7 +1035,6 @@
                 if (progress < 100) {
                     requestAnimationFrame(updateProgress);
                 } else {
-                    // Complete & transition into dashboard
                     currentUser = { username: matched.username, role: matched.role };
                     document.getElementById('current-user-display').innerText = matched.username;
                     document.getElementById('current-role-display').innerText = matched.role.toUpperCase();
@@ -1022,7 +1042,7 @@
 
                     const scannerBtn = document.getElementById('btn-tab-scanner');
                     if (matched.role === 'admin' || matched.role === 'captain') { scannerBtn.classList.remove('hidden'); } else { scannerBtn.classList.add('hidden'); }
-                    
+
                     gsap.to('#login-modal', { opacity: 0, scale: 1.05, duration: 0.8, ease: "power3.inOut", onComplete: () => { 
                         document.getElementById('login-modal').classList.add('hidden');
                         document.body.classList.remove('login-locked');
@@ -1069,11 +1089,7 @@
         document.getElementById('admin-manual-ticket-form').addEventListener('submit', async function(e) {
             e.preventDefault();
             if (!currentUser || currentUser.role !== 'admin') { await showCustomAlert("Access denied: Administrator privileges required.", "Access Restricted"); return; }
-
-            if (!navigator.onLine) {
-                showOfflineModal();
-                return;
-            }
+            if (!navigator.onLine) { showOfflineModal(); return; }
 
             const empId = document.getElementById('admin-emp-id').value.trim();
             const name = document.getElementById('admin-emp-name').value.trim();
@@ -1103,12 +1119,40 @@
 
             try {
                 await addDoc(passesCollection, manualPassData);
+                await logApprovalAction(`Pass ${passId} (${name}) was manually issued & approved by Admin`, new Date().toISOString());
                 await showCustomAlert(`Pass "${passId}" manually created and approved successfully for ${name}!`, "Manual Pass Issued");
                 document.getElementById('admin-manual-ticket-form').reset();
                 document.getElementById('admin-travel-date').valueAsDate = maldivesNow;
                 document.getElementById('admin-travel-time').value = '08:00';
             } catch (error) { console.error("Error creating manual pass:", error); await showCustomAlert("Failed to save manual pass to cloud.", "Error"); }
         });
+
+        window.adminClearPassesByMonth = async function() {
+            if (!currentUser || currentUser.role !== 'admin') { await showCustomAlert("Access denied: Administrator privileges required.", "Access Restricted"); return; }
+            const monthInput = document.getElementById('admin-clear-month').value;
+            if (!monthInput) { await showCustomAlert("Please select a valid month/year.", "Validation Error"); return; }
+
+            const confirmed = await showCustomConfirm(`Are you sure you want to clear/delete all passes for month ${monthInput}?`, "Confirm Monthly Deletion");
+            if (!confirmed) return;
+
+            try {
+                const passesToDelete = allPasses.filter(p => p.travelDate && p.travelDate.startsWith(monthInput));
+                if (passesToDelete.length === 0) {
+                    await showCustomAlert("No passes found matching the selected month.", "Notice");
+                    return;
+                }
+
+                for (let p of passesToDelete) {
+                    await deleteDoc(doc(db, "passes", p.firestoreId));
+                }
+
+                await showCustomAlert(`Successfully cleared ${passesToDelete.length} passes for ${monthInput}.`, "Completed");
+                document.getElementById('admin-clear-month').value = '';
+            } catch (err) {
+                console.error("Error clearing passes:", err);
+                await showCustomAlert("Failed to clear passes for the selected month.", "Error");
+            }
+        };
 
         window.renderUsersTable = function() {
             const tbody = document.getElementById('users-table-body');
@@ -1121,7 +1165,6 @@
                     <td class="p-3.5 text-center"><button onclick="deleteUser('${u.firestoreId}', '${u.username}')" class="bg-red-600 hover:bg-red-500 text-white px-3 py-1 rounded-lg text-[11px] transition shadow-sm">Delete</button></td>
                 </tr>
             `).join('');
-            gsap.fromTo('#users-table-body tr', { opacity: 0, y: 15 }, { opacity: 1, y: 0, stagger: 0.05, duration: 0.4, ease: "power2.out" });
         }
 
         window.resetUserPassword = async function(firestoreId, username) {
@@ -1155,16 +1198,143 @@
                         if (adminInput && document.activeElement !== adminInput) { adminInput.value = data.text; }
                     }
                 }
-            }, (err) => { console.error("Error listening to announcement settings:", err); });
+            }, (err) => { console.error("Error listening to announcement:", err); });
         }
 
-        window.updateAnnouncement = async function() {
+        // Web Audio API small alert chime sound
+        function playNotificationSound() {
+            try {
+                const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                const osc = audioCtx.createOscillator();
+                const gainNode = audioCtx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(587.33, audioCtx.currentTime); // D5 note
+                osc.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.15); // A5 note
+                gainNode.gain.setValueAtTime(0.15, audioCtx.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.4);
+                osc.connect(gainNode);
+                gainNode.connect(audioCtx.destination);
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.4);
+            } catch (e) {
+                console.warn("Audio Context blocked or not supported:", e);
+            }
+        }
+
+        // Super smooth notification toast system optimized for multiple simultaneous updates
+        function showBottomRightToast(message) {
+            playNotificationSound();
+            const container = document.getElementById('bottom-right-toast-container');
+            if (!container) return;
+
+            const toast = document.createElement('div');
+            toast.className = "pointer-events-auto bg-deepblue-900/95 text-white border border-sky-500/40 p-4 rounded-2xl shadow-[0_20px_45px_rgba(2,132,199,0.5)] backdrop-blur-xl flex flex-col space-y-1 transform opacity-0";
+            toast.innerHTML = `
+                <div class="flex items-center justify-between">
+                    <span class="text-[10px] font-mono tracking-wider text-sky-400 uppercase font-bold flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>Live Approval Alert</span>
+                    <button onclick="dismissToast(this.closest('div.pointer-events-auto'))" class="text-slate-400 hover:text-white text-xs transition">✕</button>
+                </div>
+                <p class="text-xs text-slate-200 font-medium leading-relaxed">${message}</p>
+            `;
+            container.appendChild(toast);
+
+            // Smooth entrance animation
+            gsap.fromTo(toast, 
+                { y: 30, opacity: 0, scale: 0.95 }, 
+                { y: 0, opacity: 1, scale: 1, duration: 0.5, ease: "back.out(1.4)" }
+            );
+
+            // Auto dismiss after 9000 milliseconds (9 seconds) with ultra smooth fade & slide out
+            const dismissTimeout = setTimeout(() => {
+                dismissToast(toast);
+            }, 9000);
+
+            toast.dataset.timerId = dismissTimeout;
+        }
+
+        window.dismissToast = function(toastEl) {
+            if (!toastEl || toastEl.dataset.animating) return;
+            toastEl.dataset.animating = "true";
+            if (toastEl.dataset.timerId) clearTimeout(Number(toastEl.dataset.timerId));
+
+            gsap.to(toastEl, {
+                x: 60,
+                opacity: 0,
+                scale: 0.95,
+                duration: 0.4,
+                ease: "power2.in",
+                onComplete: () => {
+                    if (toastEl && toastEl.parentElement) {
+                        toastEl.remove();
+                    }
+                }
+            });
+        }
+
+        async function logApprovalAction(message, timestamp) {
+            try {
+                const feedRef = doc(db, "system_settings", "approval_notifications");
+                const snap = await getDoc(feedRef);
+                let logs = [];
+                const nowMs = Date.now();
+                // Generate a unique identifier for this specific action event to prevent collision
+                const logId = 'notif_' + nowMs + '_' + Math.random().toString(36).substring(2, 7);
+
+                if (snap.exists() && snap.data().logs) {
+                    // Keep only recent logs within the last 15 seconds to keep Firebase payload clean
+                    logs = snap.data().logs.filter(log => log.timeMs && (nowMs - log.timeMs < 15000));
+                }
+
+                // Prepend the new unique notification log
+                logs.unshift({ logId, message, timestamp, timeMs: nowMs });
+
+                // Trim to a safe maximum size
+                if (logs.length > 15) logs = logs.slice(0, 15);
+
+                await setDoc(feedRef, { logs });
+            } catch (e) {
+                console.warn("Failed to log notification:", e);
+            }
+        }
+
+        // Keep track of processed IDs locally so they never double-fire or get stuck
+        const processedLogIds = new Set();
+
+        function setupNotificationsListener() {
+            onSnapshot(notificationsDocRef, (docSnap) => {
+                if (docSnap.exists() && docSnap.data().logs) {
+                    const nowMs = Date.now();
+                    // Filter logs to only active ones within the last 15 seconds window
+                    const activeLogs = docSnap.data().logs.filter(log => log.timeMs && (nowMs - log.timeMs < 15000));
+
+                    // Iterate through active logs and trigger toasts for any we haven't seen yet
+                    activeLogs.forEach(log => {
+                        if (log.logId && !processedLogIds.has(log.logId)) {
+                            processedLogIds.add(log.logId);
+                            showBottomRightToast(log.message);
+                        }
+                    });
+
+                    // Automatically clean up local tracking cache for expired logs to free memory
+                    if (processedLogIds.size > 50) {
+                        const activeIds = new Set(activeLogs.map(l => l.logId));
+                        for (let id of processedLogIds) {
+                            if (!activeIds.has(id)) processedLogIds.delete(id);
+                        }
+                    }
+                }
+            }, (err) => {
+                console.error("Error listening to notifications:", err);
+            });
+        }
+
+        async function updateAnnouncement() {
             if (!currentUser || currentUser.role !== 'admin') { await showCustomAlert("Access denied: Administrator privileges required.", "Access Restricted"); return; }
             const text = document.getElementById('admin-announcement-input').value.trim();
             if (!text) { await showCustomAlert("Announcement text cannot be empty.", "Validation Error"); return; }
             try {
                 await setDoc(settingsDocRef, { text, updatedAt: new Date().toISOString() });
-                await showCustomAlert("Live announcement updated successfully! It is now scrolling across all active user screens.", "Announcement Updated");
+                await showCustomAlert("Live announcement updated successfully!", "Announcement Updated");
             } catch (err) { console.error("Error updating announcement:", err); await showCustomAlert("Failed to update announcement.", "Error"); }
         }
 
@@ -1189,7 +1359,7 @@
             if (role !== 'admin') {
                 if (tabId === 'admin') { await showCustomAlert("Access denied: Administrator privileges required.", "Access Restricted"); return; }
                 if (tabId === 'scanner' && role !== 'captain') { await showCustomAlert("Access denied: Only Captain and Administrator can access Captain Scanner.", "Access Restricted"); return; }
-                if (tabId === 'ticketing' && role !== 'hr' && role !== 'supervisor') { await showCustomAlert("Access denied: Only HR, Supervisors, and Admin can access Ticketing / Registration.", "Access Restricted"); return; }
+                if (tabId === 'ticketing' && role !== 'hr' && role !== 'supervisor') { await showCustomAlert("Access denied: Only HR, Supervisors, and Admin can access Ticketing.", "Access Restricted"); return; }
                 if (tabId === 'hr' && role !== 'hr') { await showCustomAlert("Access denied: Only HR and Admin can access Records & Rosters.", "Access Restricted"); return; }
                 if (tabId === 'supervisor' && role !== 'supervisor') { await showCustomAlert("Access denied: Only Supervisor role can access this tab.", "Access Restricted"); return; }
                 if (tabId === 'hod' && role !== 'hod') { await showCustomAlert("Access denied: Only HOD role can access this tab.", "Access Restricted"); return; }
@@ -1213,12 +1383,7 @@
 
         document.getElementById('ticket-form').addEventListener('submit', async function(e) {
             e.preventDefault();
-
-            // Strictly deny offline submissions with 3D animation
-            if (!navigator.onLine) {
-                showOfflineModal();
-                return;
-            }
+            if (!navigator.onLine) { showOfflineModal(); return; }
 
             const empId = document.getElementById('emp-id').value.trim();
             const name = document.getElementById('emp-name').value.trim();
@@ -1327,7 +1492,7 @@
                         document.getElementById('preview-approval-note').innerText = latestMatch.status;
                     }
                 }
-            }, (error) => { console.error("Error listening to real-time updates: ", error); });
+            }, (error) => { console.error("Error listening to passes:", error); });
         }
 
         window.loadPassesFromFirebase = function() { console.log("Real-time listener active."); }
@@ -1359,23 +1524,27 @@
                     <td class="p-3.5 text-slate-700 dark:text-slate-300"><span class="font-semibold block">${p.vessel}</span><span class="text-[11px] text-slate-500 dark:text-slate-400">${p.route}</span></td>
                     <td class="p-3.5 text-slate-700 dark:text-slate-300 font-mono">${p.travelDate} ${p.travelTime || '08:00'}</td>
                     <td class="p-3.5 text-center flex items-center justify-center gap-2">
-                        <button onclick="supervisorApprove('${p.firestoreId}')" class="bg-sky-600 hover:bg-sky-500 text-white font-medium px-3 py-1.5 rounded-lg text-xs transition shadow-sm">Approve</button>
-                        <button onclick="supervisorDeny('${p.firestoreId}')" class="bg-red-600 hover:bg-red-500 text-white font-medium px-3 py-1.5 rounded-lg text-xs transition shadow-sm">Deny</button>
+                        <button onclick="supervisorApprove('${p.firestoreId}', '${p.passId}', '${p.name}')" class="bg-sky-600 hover:bg-sky-500 text-white font-medium px-3 py-1.5 rounded-lg text-xs transition shadow-sm">Approve</button>
+                        <button onclick="supervisorDeny('${p.firestoreId}', '${p.passId}', '${p.name}')" class="bg-red-600 hover:bg-red-500 text-white font-medium px-3 py-1.5 rounded-lg text-xs transition shadow-sm">Deny</button>
                     </td>
                 </tr>
             `).join('');
         }
 
-        window.supervisorApprove = async function(firestoreId) {
-            try { await updateDoc(doc(db, "passes", firestoreId), { status: 'Pending HOD Approval', lastUpdated: new Date().toISOString() }); }
-            catch (error) { console.error(error); await showCustomAlert("Failed to update status.", "Error"); }
+        window.supervisorApprove = async function(firestoreId, passId, name) {
+            try { 
+                await updateDoc(doc(db, "passes", firestoreId), { status: 'Pending HOD Approval', lastUpdated: new Date().toISOString() }); 
+                await logApprovalAction(`Supervisor approved pass ${passId} for ${name}`, new Date().toISOString());
+            } catch (error) { console.error(error); await showCustomAlert("Failed to update status.", "Error"); }
         }
 
-        window.supervisorDeny = async function(firestoreId) {
+        window.supervisorDeny = async function(firestoreId, passId, name) {
             const reason = await showCustomPrompt("Please enter reason for denial by Supervisor:", "Denial Reason", "Reason...");
             if (reason === null) return;
-            try { await updateDoc(doc(db, "passes", firestoreId), { status: 'Denied by Supervisor', deniedReason: reason || 'No reason provided', lastUpdated: new Date().toISOString() }); }
-            catch (error) { console.error(error); await showCustomAlert("Failed to update status.", "Error"); }
+            try { 
+                await updateDoc(doc(db, "passes", firestoreId), { status: 'Denied by Supervisor', deniedReason: reason || 'No reason provided', lastUpdated: new Date().toISOString() }); 
+                await logApprovalAction(`Supervisor denied pass ${passId} for ${name}`, new Date().toISOString());
+            } catch (error) { console.error(error); await showCustomAlert("Failed to update status.", "Error"); }
         }
 
         window.renderHODTable = function() {
@@ -1392,23 +1561,27 @@
                     <td class="p-3.5 text-slate-700 dark:text-slate-300"><span class="font-semibold block">${p.vessel}</span><span class="text-[11px] text-slate-500 dark:text-slate-400">${p.route}</span></td>
                     <td class="p-3.5 text-slate-700 dark:text-slate-300 font-mono">${p.travelDate} ${p.travelTime || '08:00'}</td>
                     <td class="p-3.5 text-center flex items-center justify-center gap-2">
-                        <button onclick="hodApprove('${p.firestoreId}')" class="bg-sky-600 hover:bg-sky-500 text-white font-medium px-3 py-1.5 rounded-lg text-xs transition shadow-sm">Approve</button>
-                        <button onclick="hodDeny('${p.firestoreId}')" class="bg-red-600 hover:bg-red-500 text-white font-medium px-3 py-1.5 rounded-lg text-xs transition shadow-sm">Deny</button>
+                        <button onclick="hodApprove('${p.firestoreId}', '${p.passId}', '${p.name}')" class="bg-sky-600 hover:bg-sky-500 text-white font-medium px-3 py-1.5 rounded-lg text-xs transition shadow-sm">Approve</button>
+                        <button onclick="hodDeny('${p.firestoreId}', '${p.passId}', '${p.name}')" class="bg-red-600 hover:bg-red-500 text-white font-medium px-3 py-1.5 rounded-lg text-xs transition shadow-sm">Deny</button>
                     </td>
                 </tr>
             `).join('');
         }
 
-        window.hodApprove = async function(firestoreId) {
-            try { await updateDoc(doc(db, "passes", firestoreId), { status: 'Pending HR Verification', lastUpdated: new Date().toISOString() }); }
-            catch (error) { console.error(error); await showCustomAlert("Failed to update status.", "Error"); }
+        window.hodApprove = async function(firestoreId, passId, name) {
+            try { 
+                await updateDoc(doc(db, "passes", firestoreId), { status: 'Pending HR Verification', lastUpdated: new Date().toISOString() }); 
+                await logApprovalAction(`HOD approved pass ${passId} for ${name}`, new Date().toISOString());
+            } catch (error) { console.error(error); await showCustomAlert("Failed to update status.", "Error"); }
         }
 
-        window.hodDeny = async function(firestoreId) {
+        window.hodDeny = async function(firestoreId, passId, name) {
             const reason = await showCustomPrompt("Please enter reason for denial by HOD:", "Denial Reason", "Reason...");
             if (reason === null) return;
-            try { await updateDoc(doc(db, "passes", firestoreId), { status: 'Denied by HOD', deniedReason: reason || 'No reason provided', lastUpdated: new Date().toISOString() }); }
-            catch (error) { console.error(error); await showCustomAlert("Failed to update status.", "Error"); }
+            try { 
+                await updateDoc(doc(db, "passes", firestoreId), { status: 'Denied by HOD', deniedReason: reason || 'No reason provided', lastUpdated: new Date().toISOString() }); 
+                await logApprovalAction(`HOD denied pass ${passId} for ${name}`, new Date().toISOString());
+            } catch (error) { console.error(error); await showCustomAlert("Failed to update status.", "Error"); }
         }
 
         window.renderHRTable = function() {
@@ -1445,8 +1618,8 @@
                         <td class="p-3.5 text-center flex flex-col gap-1.5 items-center justify-center">
                             ${p.status === 'Pending HR Verification' ? `
                                 <div class="flex gap-1.5 w-full">
-                                    <button onclick="hrVerifyAndGenerate('${p.firestoreId}')" class="flex-1 bg-sky-600 hover:bg-sky-500 text-white font-medium px-2.5 py-1.5 rounded-lg text-[11px] transition shadow-sm">Verify</button>
-                                    <button onclick="hrDeny('${p.firestoreId}')" class="flex-1 bg-red-600 hover:bg-red-500 text-white font-medium px-2.5 py-1.5 rounded-lg text-[11px] transition shadow-sm">Deny</button>
+                                    <button onclick="hrVerifyAndGenerate('${p.firestoreId}', '${p.passId}', '${p.name}')" class="flex-1 bg-sky-600 hover:bg-sky-500 text-white font-medium px-2.5 py-1.5 rounded-lg text-[11px] transition shadow-sm">Verify</button>
+                                    <button onclick="hrDeny('${p.firestoreId}', '${p.passId}', '${p.name}')" class="flex-1 bg-red-600 hover:bg-red-500 text-white font-medium px-2.5 py-1.5 rounded-lg text-[11px] transition shadow-sm">Deny</button>
                                 </div>
                             ` : `
                                 <span class="px-3 py-1 rounded-full text-[11px] font-semibold ${badgeClass} mb-1 shadow-2xs" title="${p.deniedReason || ''}">${p.status}</span>
@@ -1459,16 +1632,20 @@
             }).join('');
         }
 
-        window.hrVerifyAndGenerate = async function(firestoreId) {
-            try { await updateDoc(doc(db, "passes", firestoreId), { status: 'Approved & Generated', lastUpdated: new Date().toISOString() }); }
-            catch (error) { console.error(error); await showCustomAlert("Failed to update status.", "Error"); }
+        window.hrVerifyAndGenerate = async function(firestoreId, passId, name) {
+            try { 
+                await updateDoc(doc(db, "passes", firestoreId), { status: 'Approved & Generated', lastUpdated: new Date().toISOString() }); 
+                await logApprovalAction(`HR verified & approved pass ${passId} for ${name}`, new Date().toISOString());
+            } catch (error) { console.error(error); await showCustomAlert("Failed to update status.", "Error"); }
         }
 
-        window.hrDeny = async function(firestoreId) {
+        window.hrDeny = async function(firestoreId, passId, name) {
             const reason = await showCustomPrompt("Please enter reason for denial by HR:", "Denial Reason", "Reason...");
             if (reason === null) return;
-            try { await updateDoc(doc(db, "passes", firestoreId), { status: 'Denied by HR', deniedReason: reason || 'No reason provided', lastUpdated: new Date().toISOString() }); }
-            catch (error) { console.error(error); await showCustomAlert("Failed to update status.", "Error"); }
+            try { 
+                await updateDoc(doc(db, "passes", firestoreId), { status: 'Denied by HR', deniedReason: reason || 'No reason provided', lastUpdated: new Date().toISOString() }); 
+                await logApprovalAction(`HR denied pass ${passId} for ${name}`, new Date().toISOString());
+            } catch (error) { console.error(error); await showCustomAlert("Failed to update status.", "Error"); }
         }
 
         window.deletePass = async function(firestoreId, passId) {
@@ -1638,6 +1815,7 @@
         window.markAsBoarded = async function(firestoreId) {
             try {
                 await updateDoc(doc(db, "passes", firestoreId), { status: 'Boarded', lastUpdated: new Date().toISOString() });
+                await logApprovalAction(`Pass ${firestoreId} was checked-in and marked as Boarded by Captain/Driver`, new Date().toISOString());
                 await showCustomAlert("Passenger successfully checked-in and marked as Boarded!", "Boarding Confirmed");
                 const pass = allPasses.find(p => p.firestoreId === firestoreId);
                 if (pass) window.handleScan(pass.passId);
@@ -1659,6 +1837,7 @@
         await loadUsers();
         setupRealtimeListener();
         setupAnnouncementListener();
+        setupNotificationsListener();
         updateNetworkStatus();
     </script>
 </body>
