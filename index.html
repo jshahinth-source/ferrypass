@@ -1284,11 +1284,11 @@
                 const logId = 'notif_' + nowMs + '_' + Math.random().toString(36).substring(2, 7);
 
                 if (snap.exists() && snap.data().logs) {
-                    logs = snap.data().logs.filter(log => log.timeMs && (nowMs - log.timeMs < 15000));
+                    logs = snap.data().logs;
                 }
 
                 logs.unshift({ logId, message, timestamp, timeMs: nowMs });
-                if (logs.length > 15) logs = logs.slice(0, 15);
+                if (logs.length > 20) logs = logs.slice(0, 20);
 
                 await setDoc(feedRef, { logs });
             } catch (e) {
@@ -1297,14 +1297,20 @@
         }
 
         const processedLogIds = new Set();
+        let isInitialNotificationLoad = true;
 
         function setupNotificationsListener() {
             onSnapshot(notificationsDocRef, (docSnap) => {
                 if (docSnap.exists() && docSnap.data().logs) {
-                    const nowMs = Date.now();
-                    const activeLogs = docSnap.data().logs.filter(log => log.timeMs && (nowMs - log.timeMs < 15000));
+                    const logs = docSnap.data().logs;
 
-                    activeLogs.forEach(log => {
+                    if (isInitialNotificationLoad) {
+                        logs.forEach(log => { if (log.logId) processedLogIds.add(log.logId); });
+                        isInitialNotificationLoad = false;
+                        return;
+                    }
+
+                    logs.forEach(log => {
                         if (log.logId && !processedLogIds.has(log.logId)) {
                             processedLogIds.add(log.logId);
                             const msgText = (typeof log.message === 'string' && log.message.trim() !== '') ? log.message : (log.text || "System status updated successfully.");
@@ -1312,8 +1318,8 @@
                         }
                     });
 
-                    if (processedLogIds.size > 50) {
-                        const activeIds = new Set(activeLogs.map(l => l.logId));
+                    if (processedLogIds.size > 100) {
+                        const activeIds = new Set(logs.map(l => l.logId));
                         for (let id of processedLogIds) {
                             if (!activeIds.has(id)) processedLogIds.delete(id);
                         }
@@ -1446,6 +1452,7 @@
                 gsap.fromTo(passActions, { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" });
                 gsap.fromTo('#printable-pass', { scale: 0.95, rotationX: 10 }, { scale: 1, rotationX: 0, duration: 0.8, ease: "back.out(1.7)" });
 
+                await logApprovalAction(`New pass request ${passId} created for ${name} (${empId})`, new Date().toISOString());
                 await showCustomAlert("Pass request submitted successfully! Awaiting Supervisor approval.", "Pass Created");
                 document.getElementById('ticket-form').reset();
                 document.getElementById('travel-date').valueAsDate = maldivesNow;
