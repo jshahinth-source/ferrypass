@@ -1257,6 +1257,7 @@
         }
 
         function showBottomRightToast(message) {
+            if (currentUser && currentUser.role === 'captain') return; // Mute live popup alerts for Captain/Driver role
             playNotificationSound();
             const container = document.getElementById('bottom-right-toast-container');
             if (!container) return;
@@ -1838,7 +1839,9 @@
                 );
             } catch (err) {
                 console.error("Camera start error:", err);
-                await showCustomAlert("Could not access camera. Please ensure camera permissions are granted in your browser settings.", "Camera Error");
+                if (currentUser && currentUser.role !== 'captain') {
+                    await showCustomAlert("Could not access camera. Please ensure camera permissions are granted in your browser settings.", "Camera Error");
+                }
                 stopCameraScanner();
             }
         };
@@ -1922,9 +1925,11 @@
 
                 await updateDoc(doc(db, "passes", firestoreId), { status: 'Boarded', lastUpdated: new Date().toISOString() });
                 await logApprovalAction(`Pass ${displayPassId}${displayName} has been successfully verified & boarded by Captain/Driver`, new Date().toISOString());
-                await showCustomAlert("Passenger successfully checked-in and marked as Boarded!", "Boarding Confirmed");
+                if (currentUser && currentUser.role !== 'captain') {
+                    await showCustomAlert("Passenger successfully checked-in and marked as Boarded!", "Boarding Confirmed");
+                }
                 if (pass) window.handleScan(pass.passId);
-            } catch (error) { console.error(error); await showCustomAlert("Failed to update status.", "Error"); }
+            } catch (error) { console.error(error); if (currentUser && currentUser.role !== 'captain') await showCustomAlert("Failed to update status.", "Error"); }
         }
 
         window.exportToExcel = async function() {
