@@ -81,6 +81,23 @@
             50% { transform: scale(1.08) rotate(-3deg); }
         }
         .animate-offline-3d { animation: offlinePulse3D 2.5s ease-in-out infinite; }
+
+        /* QR Scanner Custom Overlays for Red/Green state */
+        #reader video { width: 100% !important; border-radius: 1rem; object-fit: cover; }
+        #reader__dashboard { padding: 10px !important; font-size: 12px !important; }
+        #reader__dashboard_section_csr button, #reader__dashboard_section_swaplink { padding: 6px 12px !important; background-color: #0ea5e9 !important; color: white !important; border-radius: 8px !important; border: none !important; font-weight: 600 !important; cursor: pointer !important; margin-top: 5px !important; }
+        
+        /* Red/Green targeting frame effect */
+        .scanner-frame-red {
+            border: 3px solid #ef4444 !important;
+            box-shadow: 0 0 20px rgba(239, 68, 68, 0.6);
+            transition: all 0.3s ease;
+        }
+        .scanner-frame-green {
+            border: 3px solid #10b981 !important;
+            box-shadow: 0 0 25px rgba(16, 185, 129, 0.8);
+            transition: all 0.3s ease;
+        }
     </style>
 </head>
 <body class="bg-slate-50 dark:bg-deepblue-950 text-slate-900 dark:text-slate-100 min-h-screen flex flex-col font-sans transition-colors duration-500 overflow-x-hidden login-locked">
@@ -206,7 +223,7 @@
         </div>
     </nav>
 
-    <!-- MAIN CONTENT LAYOUT CONTAINER (Centered & Optimized for Full Width) -->
+    <!-- MAIN CONTENT LAYOUT CONTAINER -->
     <div class="max-w-7xl mx-auto px-4 py-6 flex-grow w-full">
         
         <main class="w-full space-y-6">
@@ -494,24 +511,33 @@
             <section id="tab-scanner" class="hidden space-y-6">
                 <div class="bg-white dark:bg-deepblue-900 rounded-3xl shadow-xl p-6 border border-slate-200 dark:border-blue-900/45 max-w-2xl mx-auto">
                     <h2 class="text-base font-bold text-slate-900 dark:text-white mb-1">Captain / Driver Pass Verification</h2>
-                    <p class="text-xs text-slate-500 dark:text-slate-400 mb-6">Type Pass ID, take a live photo of the QR code, or upload a saved image to verify clearance.</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mb-6">Type Pass ID or use the live camera scanner to track QR code within the target area.</p>
                     
                     <div class="flex gap-2.5 mb-4">
                         <input type="text" id="scanner-input" placeholder="Enter Pass ID (e.g. MKF-XXXXXX)" class="flex-grow px-4 py-3 border border-slate-200 dark:border-blue-900/60 rounded-xl focus:ring-2 focus:ring-sky-500 focus:outline-none font-mono text-xs uppercase bg-slate-50 dark:bg-deepblue-950 text-slate-900 dark:text-white">
                         <button onclick="handleScan()" class="bg-sky-600 hover:bg-sky-500 text-white font-medium px-6 py-3 rounded-xl transition text-xs shadow-md shadow-sky-600/20">Verify Pass</button>
                     </div>
 
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
-                        <label class="bg-sky-600 hover:bg-sky-500 text-white text-xs font-medium py-3.5 px-4 rounded-xl transition flex items-center justify-center gap-2 shadow-md shadow-sky-600/20 cursor-pointer text-center">
-                            Take Live Photo of QR Code
-                            <input type="file" accept="image/*" capture="environment" class="hidden" onchange="scanQRFromFile(event)">
-                        </label>
-                        <label class="bg-slate-800 dark:bg-deepblue-950 hover:bg-slate-700 dark:hover:bg-deepblue-800 text-white text-xs font-medium py-3.5 px-4 rounded-xl transition flex items-center justify-center gap-2 shadow-md border border-slate-700 dark:border-blue-900/60 cursor-pointer text-center">
-                            Upload QR Image from File
-                            <input type="file" accept="image/*" class="hidden" onchange="scanQRFromFile(event)">
-                        </label>
+                    <!-- Live Camera Scanner UI with Red/Green Target Area -->
+                    <div class="space-y-4 mb-6">
+                        <div class="flex gap-3">
+                            <button id="btn-start-camera" onclick="startCameraScanner()" class="flex-1 bg-sky-600 hover:bg-sky-500 text-white text-xs font-medium py-3 px-4 rounded-xl transition flex items-center justify-center gap-2 shadow-md shadow-sky-600/20">
+                                📷 Start Live Camera Scan
+                            </button>
+                            <button id="btn-stop-camera" onclick="stopCameraScanner()" class="hidden flex-1 bg-red-600 hover:bg-red-500 text-white text-xs font-medium py-3 px-4 rounded-xl transition flex items-center justify-center gap-2 shadow-md shadow-red-600/20">
+                                🛑 Stop Camera
+                            </button>
+                        </div>
+                        
+                        <!-- Scanner Video Container with Red Box Frame -->
+                        <div id="scanner-container-wrapper" class="relative hidden w-full rounded-2xl overflow-hidden scanner-frame-red bg-slate-950 p-2">
+                            <div id="reader" class="w-full"></div>
+                            <div class="absolute inset-0 border-2 border-dashed border-red-500/80 pointer-events-none rounded-2xl m-4 flex items-center justify-center">
+                                <span id="scanner-status-text" class="bg-red-950/80 text-red-300 font-mono text-[10px] px-3 py-1 rounded-full border border-red-500/50 shadow-md">Align QR inside area (Red)</span>
+                            </div>
+                        </div>
                     </div>
-                    <div id="reader" class="hidden"></div>
+
                     <div id="scan-result" class="hidden border border-slate-200 dark:border-blue-900/40 rounded-2xl p-5 bg-slate-50 dark:bg-deepblue-950"></div>
                 </div>
             </section>
@@ -764,6 +790,7 @@
         let currentQRCode = null;
         let activePassDetails = null;
         let modalActivePass = null;
+        let html5QrCodeScanner = null;
 
         const sheetCache = new Map();
         const PUBLISHED_GOOGLE_SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRqjgwBdgLWkOxbJ76twZRAzcujzsgpZ-3vXSZP9-e9Uz1MNfXrLCF9U4-yxwoSxCY9kg8xCRKwek8z/pub?output=csv";
@@ -1061,6 +1088,7 @@
         });
 
         window.logoutUser = function() {
+            stopCameraScanner();
             currentUser = null;
             document.getElementById('user-session-box').classList.add('hidden');
             document.getElementById('login-password').value = '';
@@ -1365,6 +1393,11 @@
                 if (tabId === 'hr' && role !== 'hr') { await showCustomAlert("Access denied: Only HR and Admin can access Records & Rosters.", "Access Restricted"); return; }
                 if (tabId === 'supervisor' && role !== 'supervisor') { await showCustomAlert("Access denied: Only Supervisor role can access this tab.", "Access Restricted"); return; }
                 if (tabId === 'hod' && role !== 'hod') { await showCustomAlert("Access denied: Only HOD role can access this tab.", "Access Restricted"); return; }
+            }
+
+            // Stop scanner if switching away from scanner tab
+            if (tabId !== 'scanner') {
+                stopCameraScanner();
             }
 
             ['ticketing', 'supervisor', 'hod', 'hr', 'common-status', 'scanner', 'admin'].forEach(t => {
@@ -1763,6 +1796,73 @@
             });
         }
 
+        // --- LIVE QR CAMERA SCANNER WITH RED & GREEN TRACKING STATE ---
+        window.startCameraScanner = async function() {
+            const wrapper = document.getElementById('scanner-container-wrapper');
+            const startBtn = document.getElementById('btn-start-camera');
+            const stopBtn = document.getElementById('btn-stop-camera');
+            const statusText = document.getElementById('scanner-status-text');
+
+            wrapper.classList.remove('hidden');
+            startBtn.classList.add('hidden');
+            stopBtn.classList.remove('hidden');
+            wrapper.className = "relative w-full rounded-2xl overflow-hidden scanner-frame-red bg-slate-950 p-2";
+            statusText.className = "bg-red-950/80 text-red-300 font-mono text-[10px] px-3 py-1 rounded-full border border-red-500/50 shadow-md";
+            statusText.innerText = "Scanning... Align QR in red area";
+
+            try {
+                if (!html5QrCodeScanner) {
+                    html5QrCodeScanner = new Html5Qrcode("reader");
+                }
+
+                await html5QrCodeScanner.start(
+                    { facingMode: "environment" },
+                    { fps: 10, qrbox: { width: 250, height: 250 } },
+                    (decodedText) => {
+                        // Success State: Turn Green & Select Value automatically
+                        wrapper.className = "relative w-full rounded-2xl overflow-hidden scanner-frame-green bg-slate-950 p-2";
+                        statusText.className = "bg-emerald-950/80 text-emerald-300 font-mono text-[10px] px-3 py-1 rounded-full border border-emerald-500/50 shadow-md";
+                        statusText.innerText = "QR Detected & Selected Successfully! ✓";
+
+                        document.getElementById('scanner-input').value = decodedText;
+                        window.handleScan(decodedText);
+
+                        // Automatically stop camera after successful recognition lock
+                        setTimeout(() => {
+                            stopCameraScanner();
+                        }, 1200);
+                    },
+                    (errorMessage) => {
+                        // Scanning ongoing, keep red frame active
+                    }
+                );
+            } catch (err) {
+                console.error("Camera start error:", err);
+                await showCustomAlert("Could not access camera. Please ensure camera permissions are granted in your browser settings.", "Camera Error");
+                stopCameraScanner();
+            }
+        };
+
+        window.stopCameraScanner = async function() {
+            const wrapper = document.getElementById('scanner-container-wrapper');
+            const startBtn = document.getElementById('btn-start-camera');
+            const stopBtn = document.getElementById('btn-stop-camera');
+
+            if (html5QrCodeScanner) {
+                try {
+                    await html5QrCodeScanner.stop();
+                    await html5QrCodeScanner.clear();
+                } catch (e) {
+                    console.warn("Scanner stop warning:", e);
+                }
+                html5QrCodeScanner = null;
+            }
+
+            if (wrapper) wrapper.classList.add('hidden');
+            if (startBtn) startBtn.classList.remove('hidden');
+            if (stopBtn) stopBtn.classList.add('hidden');
+        };
+
         window.handleScan = async function(scannedCode) {
             const queryVal = (scannedCode || document.getElementById('scanner-input').value).trim().toUpperCase();
             const resultBox = document.getElementById('scan-result');
@@ -1812,13 +1912,6 @@
                 </div>
             `;
             gsap.fromTo(resultBox, { scale: 0.95, opacity: 0, y: 20 }, { scale: 1, opacity: 1, y: 0, duration: 0.5, ease: "power3.out" });
-        }
-
-        window.scanQRFromFile = async function(event) {
-            if (event.target.files.length === 0) return;
-            const file = event.target.files[0];
-            const scanner = new Html5Qrcode("reader");
-            scanner.scanFile(file, true).then(decodedText => { scanner.clear(); window.handleScan(decodedText); }).catch(async () => { await showCustomAlert("Could not detect a valid QR code in the image.", "QR Scan Error"); scanner.clear(); });
         }
 
         window.markAsBoarded = async function(firestoreId) {
